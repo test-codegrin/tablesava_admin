@@ -62,7 +62,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-6">
-      <Card className="w-full max-w-md shadow-xl rounded-2xl">
+      <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="flex flex-col items-start px-6 pt-6 pb-3">
           <h2 className="text-xl font-semibold">Welcome Back</h2>
           <p className="text-sm text-muted-foreground">
