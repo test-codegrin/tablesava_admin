@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@fontsource-variable/roboto": "^5.2.10",
-    "@heroui/react": "^3.0.2",
-    "@heroui/styles": "^3.0.2",
     "@remixicon/react": "^4.9.0",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.15.0",
