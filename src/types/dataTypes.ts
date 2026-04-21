@@ -3,8 +3,7 @@ export interface RegisterPayload {
   subdomain: string
   email: string
   password: string
-  razorpay_key_id: string
-  razorpay_key_secret: string
+  phone: string
 }
 export interface Category {
   categories_id: number;

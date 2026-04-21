@@ -1,18 +1,39 @@
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+interface InputProps extends React.ComponentProps<"input"> {
+  label?: string
+  error?: string
+}
+
+function Input({ className, type, label, error, id, ...props }: InputProps) {
+  const inputId = id || label?.toLowerCase().replace(/\s+/g, "-")
+
   return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "h-8 w-full min-w-0 rounded-none border border-input bg-transparent px-2.5 py-1 text-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 md:text-xs dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
-        className
+    <div className="flex flex-col gap-1.5 w-full">
+      {label && (
+        <label
+          htmlFor={inputId}
+          className="text-[16px] font-medium text-black leading-none select-none"
+        >
+          {label}
+        </label>
       )}
-      {...props}
-    />
+      <input
+        id={inputId}
+        type={type}
+        data-slot="input"
+        className={cn(
+          "h-8 w-full border border-black bg-gray-50 px-4 text-[16px] text-black/50 transition-all outline-none placeholder:text-gray-400 focus-visible:border-violet-400 focus-visible:ring-2 focus-visible:ring-violet-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-100",
+          error && "border-red-400 ring-2 ring-red-100",
+          className
+        )}
+        {...props}
+      />
+      {error && (
+        <p className="text-xs text-red-500">{error}</p>
+      )}
+    </div>
   )
 }
 
