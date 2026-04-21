@@ -64,7 +64,7 @@ const [logoutOpen, setLogoutOpen] = useState(false);
                 title={collapsed ? item.label : undefined}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm  transition-all duration-150 ${
                   isActive
-                    ? "bg-[#CC543A] text-white"
+                    ? "bg-primary text-white"
                     : "text-black hover:bg-zinc-200 hover:text-zinc-900"
                 }`}
               >
@@ -87,7 +87,7 @@ const [logoutOpen, setLogoutOpen] = useState(false);
               pathname === "/profile" ? "bg-[#CC543A]/10" : "hover:bg-zinc-50"
             }`}
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC543A]/10 text-[#CC543A]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
               {user?.avatar_url ? (
                 <img
                   src={user.avatar_url}
