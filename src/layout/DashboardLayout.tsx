@@ -109,20 +109,15 @@ export default function DashboardLayout() {
         </div>
 
         {/* Bottom — New Reservation + Logout */}
-<div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
-  {!collapsed && (
-    <button
-      className="w-full flex items-center justify-center gap-2 px-3 py-2.5 font-semibold bg-primary text-white hover:bg-primary/80 transition"
-    >
-      <span>+ New Reservation</span>
-    </button>
-  )}
+        <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
+          {!collapsed && (
+            <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 font-semibold bg-primary text-white hover:bg-primary/80 transition">
+              <span>+ New Reservation</span>
+            </button>
+          )}
 
-  <Logoutbox
-  collapsed={collapsed}
-  onLogout={handleLogout}
-/>
-</div>
+          <Logoutbox collapsed={collapsed} onLogout={handleLogout} />
+        </div>
       </aside>
 
       {/* ── Main Content ──────────────────────────────────────── */}
@@ -215,16 +210,11 @@ export default function DashboardLayout() {
 
                   <div className="my-1 border-t border-zinc-100" />
 
-                <Logoutbox
-  collapsed={collapsed}
-  onLogout={handleLogout}
-/>
+                  <Logoutbox collapsed={collapsed} onLogout={handleLogout} />
                 </div>
               </PopoverContent>
             </Popover>
           </div>
-
-         
         </header>
 
         <div className="flex-1 overflow-auto p-6">
