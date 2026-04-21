@@ -14,7 +14,7 @@ function Input({ className, type, label, error, id, ...props }: InputProps) {
       {label && (
         <label
           htmlFor={inputId}
-          className="text-[16px] font-medium text-black leading-none select-none"
+          className=" font-medium  leading-none select-none"
         >
           {label}
         </label>
@@ -24,7 +24,7 @@ function Input({ className, type, label, error, id, ...props }: InputProps) {
         type={type}
         data-slot="input"
         className={cn(
-          "h-8 w-full border border-black bg-zinc-50 px-4 text-[16px] text-black transition-all outline-none placeholder:text-zinc-400 focus-visible:border-violet-400 focus-visible:ring-2 focus-visible:ring-violet-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-100",
+          " w-full border border-black bg-zinc-50 p-3 text-black transition-all outline-none placeholder:text-zinc-400 focus-visible:border-violet-400 focus-visible:ring-2 focus-visible:ring-violet-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-100",
           error && "border-red-400 ring-2 ring-red-100",
           className
         )}

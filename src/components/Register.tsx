@@ -71,7 +71,7 @@ export default function Register() {
             </h2>
           </CardHeader>
 
-          <CardContent className="px-0 py-0 space-y-2 lg:space-y-3">
+          <CardContent className="px-0 py-0 space-y-4 lg:space-y-6">
 
             {/* Restaurant Name */}
             <Input
@@ -80,7 +80,6 @@ export default function Register() {
               placeholder="e.g. TableSeva Centre"
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              className="py-4 lg:py-8"
             />
 
             {/* Subdomain */}
@@ -90,7 +89,6 @@ export default function Register() {
               placeholder="tableseva.com"
               value={formData.subdomain}
               onChange={(e) => handleChange("subdomain", e.target.value)}
-              className="py-4 lg:py-8"
             />
 
             {/* Email */}
@@ -101,7 +99,6 @@ export default function Register() {
               type="email"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className="py-4 lg:py-8"
             />
              {/* Email */}
             <Input
@@ -111,7 +108,6 @@ export default function Register() {
               type="tel"
               value={formData.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
-              className="py-4 lg:py-8"
             />
 
             {/* Password */}
@@ -123,8 +119,7 @@ export default function Register() {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleChange("password", e.target.value)}
-                className="py-4 lg:py-8"
-              />
+                />
               <button
                 title={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword(!showPassword)}

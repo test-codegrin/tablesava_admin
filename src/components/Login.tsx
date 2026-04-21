@@ -82,35 +82,35 @@ export default function Login() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
-                className="py-8"
+                
               />
             </div>
 
             {/* Password */}
-           <div className="relative flex items-center">
-  <Input
-    label="Password"
-    id="password"
-    placeholder="Enter password"
-    type={showPassword ? "text" : "password"}
-    value={formData.password}
-    onChange={(e) => handleChange("password", e.target.value)}
-    className="py-8"
-  />
+            <div className="relative flex items-center">
+              <Input
+                label="Password"
+                id="password"
+                placeholder="Enter password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                
+              />
 
-  <button
-    aria-label={showPassword ? "Hide password" : "Show password"}
-    title={showPassword ? "Hide password" : "Show password"}
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-zinc-600 transition-colors"
-  >
-    <Icon
-      icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff}
-      width={16}
-    />
-  </button>
-</div>
+              <button
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-zinc-600 transition-colors"
+              >
+                <Icon
+                  icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff}
+                  width={16}
+                />
+              </button>
+            </div>
             {/* Submit */}
             <div className="pt-1">
               <Button
