@@ -14,8 +14,8 @@ export default function DashboardHome() {
       </div>
 
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Coming Soon</h2>
-        <p className="text-gray-400 text-sm max-w-sm">
+        <h2 className="text-3xl font-bold text-zinc-800 tracking-tight">Coming Soon</h2>
+        <p className="text-zinc-400 text-sm max-w-sm">
           <span className="font-medium text-green-600">Dashboard</span> is under development.
           We're working hard to bring this feature to you!
         </p>

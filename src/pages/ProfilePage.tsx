@@ -16,8 +16,8 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-800">Profile</h1>
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <h1 className="text-2xl font-semibold text-zinc-800">Profile</h1>
+      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#CC543A]/10 text-[#CC543A]">
             {user.avatar_url ? (
@@ -31,8 +31,8 @@ export default function ProfilePage() {
             )}
           </div>
           <div>
-            <p className="text-lg font-semibold text-gray-900">{user.name}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <p className="text-lg font-semibold text-zinc-900">{user.name}</p>
+            <p className="text-sm text-zinc-500">{user.email}</p>
           </div>
         </div>
 
@@ -54,9 +54,9 @@ export default function ProfilePage() {
 
 function ProfileField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-      <p className="mb-1 text-xs uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="text-sm font-medium text-gray-900">{value}</p>
+    <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4">
+      <p className="mb-1 text-xs uppercase tracking-wide text-zinc-500">{label}</p>
+      <p className="text-sm font-medium text-zinc-900">{value}</p>
     </div>
   );
 }

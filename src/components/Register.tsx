@@ -128,7 +128,7 @@ export default function Register() {
               <button
                 title={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-zinc-600 transition-colors"
               >
                 <Icon icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff} width={16} />
               </button>

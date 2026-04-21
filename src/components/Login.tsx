@@ -103,7 +103,7 @@ export default function Login() {
     title={showPassword ? "Hide password" : "Show password"}
     type="button"
     onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-gray-600 transition-colors"
+    className="absolute right-3 top-2/3 -translate-y-2/3 text-black/50 hover:text-zinc-600 transition-colors"
   >
     <Icon
       icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff}

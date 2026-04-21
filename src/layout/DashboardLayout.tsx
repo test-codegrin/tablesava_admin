@@ -34,12 +34,12 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-zinc-50">
       {/* ── Sidebar ───────────────────────────────────────────── */}
       <aside
         className={`${
           collapsed ? "w-16" : "w-76"
-        } transition-all duration-300 bg-[#F7F7F7] border-r border-gray-100 flex flex-col shrink-0`}
+        } transition-all duration-300 bg-[#F7F7F7] border-r border-zinc-100 flex flex-col shrink-0`}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 py-4">
@@ -55,10 +55,10 @@ export default function DashboardLayout() {
                 key={item.label}
                 onClick={() => navigate(item.path)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-[16px] font-medium transition-all duration-150 ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm  transition-all duration-150 ${
                   isActive
                     ? "bg-[#CC543A] text-white"
-                    : "text-black hover:bg-gray-200 hover:text-gray-900"
+                    : "text-black hover:bg-zinc-200 hover:text-zinc-900"
                 }`}
               >
                 <Icon
@@ -73,11 +73,11 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Profile section */}
-        <div className="mx-2 mb-2 rounded-xl border border-gray-200 bg-white p-2">
+        <div className="mx-2 mb-2 rounded-xl border border-zinc-200 bg-white p-2">
           <button
             onClick={() => navigate("/profile")}
             className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
-              pathname === "/profile" ? "bg-[#CC543A]/10" : "hover:bg-gray-50"
+              pathname === "/profile" ? "bg-[#CC543A]/10" : "hover:bg-zinc-50"
             }`}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC543A]/10 text-[#CC543A]">
@@ -93,17 +93,17 @@ export default function DashboardLayout() {
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">
+                <p className="truncate text-sm font-semibold text-zinc-900">
                   {user?.name || "Admin"}
                 </p>
-                <p className="truncate text-xs text-gray-500">{user?.email}</p>
+                <p className="truncate text-xs text-zinc-500">{user?.email}</p>
               </div>
             )}
           </button>
         </div>
 
         {/* Bottom — New Reservation + Logout */}
-        <div className="px-2 pb-4 space-y-1 border-t border-gray-100 pt-3">
+        <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
           {!collapsed && (
             <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-[16px] font-semibold bg-[#CC543A] text-white hover:bg-[#b8472f] transition">
               <span>+ New Reservation</span>
@@ -112,7 +112,7 @@ export default function DashboardLayout() {
           <button
             onClick={handleLogout}
             title={collapsed ? "Logout" : undefined}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[16px] font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[16px] font-medium text-zinc-500 hover:bg-red-50 hover:text-red-500 transition"
           >
             <Icon icon={ICONS.logout} width={18} className="shrink-0" />
             {!collapsed && <span>Logout</span>}
@@ -123,11 +123,11 @@ export default function DashboardLayout() {
       {/* ── Main Content ──────────────────────────────────────── */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-white/80 border-b border-gray-100 px-6 py-8 flex items-center justify-between shrink-0">
+        <header className="bg-white/80 border-b border-zinc-100 px-6 py-8 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition"
+              className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 transition"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <Icon
@@ -157,7 +157,7 @@ export default function DashboardLayout() {
                   </span>
                 )}
               </div>
-              <span className="hidden text-sm text-gray-600 md:block">
+              <span className="hidden text-sm text-zinc-600 md:block">
                 {user?.name || "Admin"}
               </span>
             </button>

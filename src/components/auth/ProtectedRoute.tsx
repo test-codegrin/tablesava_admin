@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (isBootstrapping) {
     return (
-      <div className="flex h-screen items-center justify-center text-sm text-gray-500">
+      <div className="flex h-screen items-center justify-center text-sm text-zinc-500">
         Restoring session...
       </div>
     );
