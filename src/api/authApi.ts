@@ -4,6 +4,8 @@ import type {
   LoginResponse,
   MeResponse,
   RegisterPayload,
+  UpdateVendorProfilePayload,
+  UpdateVendorProfileResponse,
 } from "../types/dataTypes"
 
 // Register
@@ -42,4 +44,11 @@ export const getMeApi = async (): Promise<MeResponse> => {
   }
 
   throw new Error("Profile endpoint not available");
+}
+
+export const updateVendorProfileApi = async (
+  data: UpdateVendorProfilePayload,
+): Promise<UpdateVendorProfileResponse> => {
+  const response = await api.put<UpdateVendorProfileResponse>("/vendor/profile", data);
+  return response.data;
 }

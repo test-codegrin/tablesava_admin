@@ -31,6 +31,18 @@ export interface MeResponse {
   vendor: VendorProfile;
 }
 
+export interface UpdateVendorProfilePayload {
+  name: string;
+  email: string;
+  phone: string;
+  subdomain: string;
+}
+
+export interface UpdateVendorProfileResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface Category {
   categories_id: number;
   name: string;
