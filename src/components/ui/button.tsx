@@ -15,10 +15,10 @@ const buttonVariants = cva(
         secondary: "bg-zinc-100 text-zinc-950 hover:bg-zinc-200 focus-visible:ring-zinc-300",
         ghost:     "text-zinc-700 hover:bg-zinc-100 focus-visible:ring-zinc-300",
         destructive: "bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-300",
-        link:      "text-[#CC543A] underline-offset-4 hover:underline",
+        link:      "text-blue-700 underline-offset-4 hover:underline cursor-pointer",
       },
       size: {
-        default:   "h-11 gap-2 px-4",
+        default:   "h-11 gap-2",
         xs:        "h-7 gap-1  px-3 text-xs",
         sm:        "h-9 gap-1.5 px-3 text-sm",
         lg:        "h-12 gap-2 px-5 text-base",

@@ -67,7 +67,7 @@ export default function Login() {
                 className="h-full w-full object-contain"
               />
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-[28px] font-semibold text-center leading-tight">
+            <h2 className="text-xl  font-semibold text-center leading-tight">
               Good to See You Again
             </h2>
           </CardHeader>
@@ -114,7 +114,7 @@ export default function Login() {
             {/* Submit */}
             <div className="pt-1">
               <Button
-                className="w-full p-8 text-[20px]"
+                className="w-full p-8"
                 onClick={handleSubmit}
                 disabled={loading}
               >
@@ -135,7 +135,6 @@ export default function Login() {
               Don't have an account?{" "}
               <Button
                 variant={"link"}
-                className="cursor-pointer font-medium "
                 onClick={() => navigate("/register")}
               >
                 Sign Up

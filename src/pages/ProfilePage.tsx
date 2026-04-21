@@ -17,9 +17,9 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <h1 className="text-2xl font-semibold text-zinc-800">Profile</h1>
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <div className=" border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#CC543A]/10 text-[#CC543A]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 text-primary text-lg font-semibold">
             {user.avatar_url ? (
               <img
                 src={user.avatar_url}

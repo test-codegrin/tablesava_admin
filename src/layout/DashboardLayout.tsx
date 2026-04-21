@@ -84,7 +84,7 @@ const [logoutOpen, setLogoutOpen] = useState(false);
           <button
             onClick={() => navigate("/profile")}
             className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
-              pathname === "/profile" ? "bg-[#CC543A]/10" : "hover:bg-zinc-50"
+              pathname === "/profile" ? "bg-primary/20" : "hover:bg-zinc-50"
             }`}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
@@ -112,14 +112,14 @@ const [logoutOpen, setLogoutOpen] = useState(false);
         {/* Bottom — New Reservation + Logout */}
         <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
           {!collapsed && (
-            <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-[16px] font-semibold bg-[#CC543A] text-white hover:bg-[#b8472f] transition">
+            <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5  font-semibold bg-primary text-white hover:bg-primary/80 transition">
               <span>+ New Reservation</span>
             </button>
           )}
           <button
             onClick={handleLogout}
             title={collapsed ? "Logout" : undefined}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[16px] font-medium text-zinc-500 hover:bg-red-50 hover:text-red-500 transition"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg  font-medium text-zinc-500 hover:bg-primary/20 hover:text-primary transition"
           >
             <Icon icon={ICONS.logout} width={18} className="shrink-0" />
             {!collapsed && <span>Logout</span>}
@@ -149,18 +149,18 @@ const [logoutOpen, setLogoutOpen] = useState(false);
   <Popover>
     <PopoverTrigger asChild>
       <button className="flex items-center gap-2" title="Open profile">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#CC543A]/10 text-[#CC543A]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
           {user?.avatar_url ? (
             <img src={user.avatar_url} alt={user.name} className="h-full w-full rounded-full object-cover" />
           ) : (
-            <span className="text-[11px] font-semibold">{initials || "A"}</span>
+            <span className=" font-semibold">{initials || "A"}</span>
           )}
         </div>
         <span className="hidden text-sm text-zinc-600 md:block">{user?.name || "Admin"}</span>
       </button>
     </PopoverTrigger>
 
-    <PopoverContent align="end" sideOffset={8} className="w-52 p-0 rounded-xl overflow-hidden">
+    <PopoverContent align="end" sideOffset={8} className="w-52 p-0 overflow-hidden">
       {/* User info header */}
       <div className="px-4 py-3 border-b border-zinc-100">
         <p className="text-sm font-semibold text-zinc-900 truncate">{user?.name || "Admin"}</p>
@@ -185,7 +185,7 @@ const [logoutOpen, setLogoutOpen] = useState(false);
         >
           <Icon icon={ICONS.setting ?? ICONS.question} width={16} className="text-zinc-300" />
           Settings
-          <span className="ml-auto text-[10px] bg-zinc-100 text-zinc-400 px-1.5 py-0.5 rounded">Soon</span>
+          <span className="ml-auto bg-zinc-100 text-zinc-400 px-1.5 py-0.5">Soon</span>
         </button>
 
         <div className="my-1 border-t border-zinc-100" />
@@ -193,9 +193,9 @@ const [logoutOpen, setLogoutOpen] = useState(false);
         {/* Logout */}
         <button
           onClick={() => setLogoutOpen(true)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-primary hover:bg-primary/20 transition"
         >
-          <Icon icon={ICONS.logout} width={16} className="text-red-400" />
+          <Icon icon={ICONS.logout} width={16} className="text-primary" />
           Logout
         </button>
       </div>
@@ -206,9 +206,9 @@ const [logoutOpen, setLogoutOpen] = useState(false);
 {/* Logout Confirmation Dialog */}
 {logoutOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-    <div className="w-80 rounded-2xl bg-white shadow-xl p-6">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 mx-auto mb-4">
-        <Icon icon={ICONS.logout} width={22} className="text-red-500" />
+    <div className="w-80 bg-white shadow-xl p-6">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 mx-auto mb-4">
+        <Icon icon={ICONS.logout} width={22} className="text-primary" />
       </div>
       <h3 className="text-center text-base font-semibold text-zinc-900">Confirm Logout</h3>
       <p className="text-center text-sm text-zinc-400 mt-1 mb-6">
@@ -217,13 +217,13 @@ const [logoutOpen, setLogoutOpen] = useState(false);
       <div className="flex gap-3">
         <button
           onClick={() => setLogoutOpen(false)}
-          className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition"
+          className="flex-1 border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition"
         >
           Cancel
         </button>
         <button
           onClick={() => { setLogoutOpen(false); handleLogout(); }}
-          className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-medium text-white hover:bg-red-600 transition"
+          className="flex-1 bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary/80 transition"
         >
           Logout
         </button>

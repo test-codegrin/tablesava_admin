@@ -132,7 +132,7 @@ export default function Register() {
             {/* Submit */}
             <div className="pt-1">
               <Button
-                className="w-full p-5 text-base lg:p-8 lg:text-[20px]"
+                className="w-full p-5 text-base lg:p-8"
                 onClick={handleSubmit}
                 disabled={loading}
               >
@@ -148,14 +148,14 @@ export default function Register() {
           </CardContent>
 
           <CardFooter className="justify-center px-0 py-3 lg:py-5">
-            <p className="text-sm lg:text-[16px] text-black/50">
+            <p className="text-sm lg: text-black/50">
               Already have an account?{" "}
-              <span
+              <Button
+                variant={"link"}
                 onClick={() => navigate("/login")}
-                className="cursor-pointer font-medium text-[#6938EF] hover:underline"
               >
                 Login here
-              </span>
+              </Button>
             </p>
           </CardFooter>
 
