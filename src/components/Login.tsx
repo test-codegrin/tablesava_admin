@@ -23,22 +23,30 @@ export default function Login() {
 
   const handleSubmit = async () => {
     if (!formData.email || !formData.password) {
-      toast.error("Missing Fields", { description: "Please enter your email and password." });
+      toast.error("Missing Fields", {
+        description: "Please enter your email and password.",
+      });
       return;
     }
     setLoading(true);
     try {
       await login(formData);
-      toast.success("Login Successful", { description: "Welcome back! Redirecting..." });
-      const redirectTo = (location.state as { from?: { pathname?: string } })?.from?.pathname || "/dashboard";
+      toast.success("Login Successful", {
+        description: "Welcome back! Redirecting...",
+      });
+      const redirectTo =
+        (location.state as { from?: { pathname?: string } })?.from?.pathname ||
+        "/dashboard";
       setTimeout(() => navigate(redirectTo, { replace: true }), 800);
     } catch (error: unknown) {
       const message =
         typeof error === "object" &&
         error &&
         "response" in error &&
-        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
-          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        typeof (error as { response?: { data?: { message?: string } } })
+          .response?.data?.message === "string"
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
           : "Login Failed. Please try again.";
       toast.error("Login Failed", { description: message });
     } finally {
@@ -48,14 +56,16 @@ export default function Login() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-
       {/* Left — form */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 sm:px-10 overflow-y-auto">
         <div className="w-full max-w-sm py-6">
-
           <CardHeader className="flex flex-col items-center px-0 pt-0 pb-6">
             <div className="mb-3 flex h-10 w-10 items-center justify-center">
-              <img src="/auth/logo.png" alt="Logo" className="h-full w-full object-contain" />
+              <img
+                src="/auth/logo.png"
+                alt="Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <h2 className="text-xl sm:text-2xl md:text-[28px] font-semibold text-center leading-tight">
               Good to See You Again
@@ -63,7 +73,6 @@ export default function Login() {
           </CardHeader>
 
           <CardContent className="px-0 py-0 space-y-3">
-
             {/* Email */}
             <div className="relative flex items-center">
               <Input
@@ -89,19 +98,28 @@ export default function Login() {
                 className="py-8"
               />
               <button
-              title={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <Icon icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff} width={16} />
+                <Icon
+                  icon={showPassword ? ICONS.eyeOn : ICONS.eyeOff}
+                  width={16}
+                />
               </button>
             </div>
 
             {/* Submit */}
             <div className="pt-1">
-              <Button className="w-full p-8 text-[20px]" onClick={handleSubmit} disabled={loading}>
-                {loading ? "Logging In..." : (
+              <Button
+                className="w-full p-8 text-[20px]"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  "Logging In..."
+                ) : (
                   <>
                     Log In
                     <Icon icon={ICONS.arrowRight} width={16} />
@@ -109,7 +127,6 @@ export default function Login() {
                 )}
               </Button>
             </div>
-
           </CardContent>
 
           <CardFooter className="justify-center px-0 py-5">
@@ -123,7 +140,6 @@ export default function Login() {
               </span>
             </p>
           </CardFooter>
-
         </div>
       </div>
 
@@ -135,7 +151,6 @@ export default function Login() {
           className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
-
     </div>
   );
 }
