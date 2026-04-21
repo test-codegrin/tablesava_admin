@@ -1,12 +1,10 @@
-import axios from "axios"
-import type { Category,Pagination } from "../types/dataTypes"
+import api from "./apiClient"
 
-const BASE_URL = "https://1n2nng7m-3000.inc1.devtunnels.ms"
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 // Get all categories
 export const getCategoriesApi = async () => {
-  const response = await axios.get(`${BASE_URL}/categories`)
+  const response = await api.get("/categories")
   return response.data
 }
 
@@ -16,9 +14,7 @@ export const createCategoryApi = async (data: {
   description: string
   status: string
 }) => {
-  const response = await axios.post(`${BASE_URL}/categories`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await api.post("/categories", data)
   return response.data
 }
 
@@ -27,14 +23,12 @@ export const updateCategoryApi = async (
   id: number,
   data: { name: string; description: string; status: string }
 ) => {
-  const response = await axios.put(`${BASE_URL}/categories/${id}`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await api.put(`/categories/${id}`, data)
   return response.data
 }
 
 // Delete category
 export const deleteCategoryApi = async (id: number) => {
-  const response = await axios.delete(`${BASE_URL}/categories/${id}`)
+  const response = await api.delete(`/categories/${id}`)
   return response.data
 }

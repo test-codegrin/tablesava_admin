@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authApi } from "../api/authApi";
+import { registerApi } from "../api/authApi";
 import type { RegisterPayload } from "../types/dataTypes";
 import { Icon, ICONS } from "../config/icons";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +38,7 @@ export default function Register() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email || !formData.password ) {
       toast.error("Missing Fields", {
         description: "Please fill in all required fields.",
       });
@@ -47,7 +47,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await authApi(formData);
+      const res = await registerApi(formData);
       console.log(res);
 
       toast.success("Account Created", {
