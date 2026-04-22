@@ -114,9 +114,9 @@ export default function DashboardLayout() {
         {/* Bottom — New Reservation + Logout */}
         <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
           {!collapsed && (
-            <Button  className="w-full gap-2 px-3 font-semibold text-white">
-              <span>+ New Reservation</span>
-            </Button>
+           <Button className="w-full gap-2 px-3 font-semibold text-white" onClick={() => navigate("/reservation")}>
+  <span>+ New Reservation</span>
+</Button>
           )}
 
           <Logoutbox collapsed={collapsed} onLogout={handleLogout} />

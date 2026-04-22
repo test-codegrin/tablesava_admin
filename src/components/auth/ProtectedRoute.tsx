@@ -1,17 +1,14 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import type { ReactNode } from "react";
+import Loader from "../../pages/Loader";
+
 
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isBootstrapping } = useAuth();
   const location = useLocation();
-
-  if (isBootstrapping) {
-    return (
-      <div className="flex h-screen items-center justify-center text-sm text-zinc-500">
-        Restoring session...
-      </div>
-    );
+    if (isBootstrapping) {
+    return <Loader fullscreen />;
   }
 
   if (!isAuthenticated) {

@@ -12,6 +12,7 @@ import LiveOrders from "../pages/LiveOrders";
 import DashboardLayout from "../layout/DashboardLayout";
 import ProfilePage from "../pages/ProfilePage";
 import Register from "@/pages/Register";
+import NewReservation from "@/pages/NewReservation";
 
 export default function AppRoutes() {
   return (
@@ -51,6 +52,7 @@ export default function AppRoutes() {
           <Route path="/payments"  element={<Payments />} />
           <Route path="/orders"    element={<LiveOrders />} />
           <Route path="/profile"   element={<ProfilePage />} />
+          <Route path="/reservation" element={<NewReservation />} />
         </Route>
 
         {/* Fallback */}
