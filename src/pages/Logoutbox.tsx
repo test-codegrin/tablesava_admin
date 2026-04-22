@@ -26,7 +26,7 @@ export default function Logoutbox({ collapsed = false, onLogout }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Logout"
-        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-primary hover:bg-primary/20 transition"
+        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-primary hover:bg-primary/20 transition cursor-pointer"
       >
         <Icon icon={ICONS.logout} width={16} className="shrink-0" />
         {!collapsed && <span>Logout</span>}
@@ -51,14 +51,14 @@ export default function Logoutbox({ collapsed = false, onLogout }: Props) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="flex-1 border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition"
+              className="flex-1 border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200 transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={() => { setOpen(false); onLogout(); }}
-              className="flex-1 bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary/80 transition"
+              className="flex-1 bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary/80 transition cursor-pointer"
             >
               Logout
             </button>

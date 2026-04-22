@@ -53,7 +53,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 py-3 space-y-1 px-2 overflow-y-auto">
+        <nav className="flex-1 py-3 space-y-1 px-2 overflow-y-auto ">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -61,7 +61,7 @@ export default function DashboardLayout() {
                 key={item.label}
                 onClick={() => navigate(item.path)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm  transition-all duration-150 ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm cursor-pointer  transition-all duration-150 ${
                   isActive
                     ? "bg-primary text-white"
                     : "text-black hover:bg-zinc-200 hover:text-zinc-900"
@@ -79,11 +79,11 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Profile section */}
-        <div className="mx-2 mb-2 rounded-xl border border-zinc-200 bg-white p-2">
+        <div className="mx-2 mb-2 border border-zinc-200 bg-white p-2">
           <button
             onClick={() => navigate("/profile")}
-            className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition ${
-              pathname === "/profile" ? "bg-primary/20" : "hover:bg-zinc-50"
+            className={`flex w-full items-center gap-3 px-2 py-2 text-left transition cursor-pointer ${
+              pathname === "/profile"
             }`}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
@@ -111,7 +111,7 @@ export default function DashboardLayout() {
         {/* Bottom — New Reservation + Logout */}
         <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
           {!collapsed && (
-            <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 font-semibold bg-primary text-white hover:bg-primary/80 transition">
+            <button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 font-semibold bg-primary text-white hover:bg-primary/80 transition cursor-pointer">
               <span>+ New Reservation</span>
             </button>
           )}
@@ -127,7 +127,7 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 transition"
+              className="p-2 text-zinc-400 transition cursor-pointer"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <Icon
@@ -137,12 +137,11 @@ export default function DashboardLayout() {
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <Icon icon={ICONS.question} width={18} className="text-black/50" />
 
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                   title="Open profile"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
@@ -182,7 +181,7 @@ export default function DashboardLayout() {
                   {/* Profile */}
                   <button
                     onClick={() => navigate("/profile")}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-200 transition cursor-pointer"
                   >
                     <Icon
                       icon={ICONS.account}
