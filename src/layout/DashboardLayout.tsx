@@ -54,7 +54,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 py-3 space-y-1 px-2 overflow-y-auto">
+        <nav className="flex-1 py-3 space-y-1 px-2 overflow-y-auto ">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
