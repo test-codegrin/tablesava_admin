@@ -188,15 +188,15 @@ export default function CategoryManagement() {
                 <TableCell className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => openEdit(cat)}
                   >
                     Edit
                   </Button>
                   <Button
                     size="sm"
-                    variant="ghost"
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                    variant="destructive"
+                    // className="text-red-500 hover:text-red-600 hover:bg-red-50"
                     onClick={() => handleDelete(cat.categories_id)}
                   >
                     Delete
