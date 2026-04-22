@@ -15,6 +15,8 @@ import NewReservation from "@/pages/NewReservation";
 import AccountDetailsPage from "@/pages/AccountDetailspage";
 import PaymentMethodPage from "@/pages/PaymentMethodpage";
 import ProfileLayout from "../layout/ProfileLayout";
+import DishManagement from "@/pages/DishManagement";
+import ItemName from "@/pages/ItemName";
 
 export default function AppRoutes() {
   return (
@@ -48,6 +50,8 @@ export default function AppRoutes() {
         >
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/category" element={<CategoryManagement />} />
+          <Route path="/dish-management" element={<DishManagement />} />
+          <Route path="/item-name" element={<ItemName />} />
           <Route path="/tables" element={<TableManagement />} />
           <Route path="/qr-code" element={<QRCodeGeneration />} />
           <Route path="/inventory" element={<Inventory />} />

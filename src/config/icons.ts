@@ -38,6 +38,8 @@ export const ICONS = {
 
   // ─── Auth — Actions ──────────────────────────────────────────────
   arrowRight:       "mdi:arrow-right",
+  //dashboard icon for category management
+  delete:          "mdi:delete-outline",
 } as const;
 
 export type IconKey = keyof typeof ICONS;
