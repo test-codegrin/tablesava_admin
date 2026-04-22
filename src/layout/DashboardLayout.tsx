@@ -63,7 +63,7 @@ export default function DashboardLayout() {
                 type="button"
                 onClick={() => navigate(item.path)}
                 title={collapsed ? item.label : undefined}
-                variant={isActive ? "primary" : "ghost"}
+                variant={isActive ? "default" : "ghost"}
                 className={`w-full justify-start gap-3 px-3 ${
                   isActive ? "text-white" : "text-black hover:bg-zinc-200 hover:text-zinc-900"
                 }`}
@@ -86,7 +86,7 @@ export default function DashboardLayout() {
             variant="ghost"
             onClick={() => navigate("/profile")}
             className={`h-auto w-full justify-start gap-3 px-2 py-2 text-left ${
-              pathname === "/profile" ? "bg-primary/20" : "hover:bg-zinc-50"
+              pathname === "/profile"
             }`}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary">
@@ -114,7 +114,7 @@ export default function DashboardLayout() {
         {/* Bottom — New Reservation + Logout */}
         <div className="px-2 pb-4 space-y-1 border-t border-zinc-100 pt-3">
           {!collapsed && (
-            <Button variant="primary" className="w-full gap-2 px-3 font-semibold">
+            <Button  className="w-full gap-2 px-3 font-semibold text-white">
               <span>+ New Reservation</span>
             </Button>
           )}
@@ -194,7 +194,7 @@ export default function DashboardLayout() {
                     <Icon
                       icon={ICONS.account}
                       width={16}
-                      className="text-zinc-400"
+                      className="w-full justify-start gap-3 "
                     />
                     Profile
                   </Button>

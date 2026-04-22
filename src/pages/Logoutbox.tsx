@@ -60,9 +60,8 @@ export default function Logoutbox({ collapsed = false, onLogout }: Props) {
             </Button>
             <Button
               type="button"
-              onClick={() => { setOpen(false); onLogout(); }}
-              variant="primary"
-              className="flex-1"
+              onClick={() => { setOpen(false); onLogout(); }}          
+              className="flex-1 text-white"
             >
               Logout
             </Button>
