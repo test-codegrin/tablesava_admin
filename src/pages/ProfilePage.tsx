@@ -96,32 +96,16 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-800">Profile</h1>
-        {isEditing ? (
-          <div key="edit-actions" className="flex gap-2">
-            <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        ) : (
-          <div key="view-actions" className="flex gap-2">
-            <Button onClick={handleEdit}>Edit</Button>
-          </div>
-        )}
-      </div>
+    <div className="flex items-start justify-center min-h-full">
+      <div className="w-full max-w-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex">
 
         {/* ── Left panel ── */}
-        <div className="w-58 shrink-0 border-r border-zinc-100 flex flex-col">
+        <div className="w-48 shrink-0 border-r border-zinc-100 flex flex-col">
 
           {/* Avatar */}
           <div className="flex flex-col items-center px-4 pt-8 pb-6 border-b border-zinc-100">
             <div className="relative group cursor-pointer">
-              <div className="h-24 w-24  overflow-hidden bg-zinc-100 flex items-center justify-center">
+              <div className="h-24 w-24 overflow-hidden bg-zinc-100 flex items-center justify-center">
                 {user.avatar_url ? (
                   <img src={user.avatar_url} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
@@ -146,9 +130,9 @@ export default function ProfilePage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium transition text-left w-full ${
+                className={`flex items-center gap-2.5 px-3 py-2.5  text-sm font-medium transition text-left w-full ${
                   activeTab === tab.key
-                    ? "border-l-4 border-primary bg-primary/5 text-primary"
+                    ? "border-l-4 border-[#CC543A] bg-[#CC543A]/5 text-primary"
                     : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
                 }`}
               >
@@ -167,14 +151,7 @@ export default function ProfilePage() {
             <h2 className="text-lg font-semibold text-zinc-800">
               {tabs.find((t) => t.key === activeTab)?.label}
             </h2>
-            <button
-              type="button"
-              onClick={() => {}}
-              title="More options"
-              className="flex h-7 w-7 items-center justify-center hover:bg-zinc-100 text-zinc-400 transition"
-            >
-              <Icon icon={ICONS.chevronRight} width={16} />
-            </button>
+            
           </div>
 
           {/* Content */}
@@ -238,14 +215,14 @@ export default function ProfilePage() {
                 <button
                   onClick={handleCancel}
                   disabled={isSaving}
-                  className="px-4 py-2 border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition disabled:opacity-50"
+                  className="px-4 py-2  border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/80 transition disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2  bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-50"
                 >
                   <Icon icon={ICONS.account} width={14} />
                   {isSaving ? "Saving..." : "Update"}
@@ -254,7 +231,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/80 transition"
+                className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
               >
                 <Icon icon={ICONS.account} width={14} />
                 Edit Profile
