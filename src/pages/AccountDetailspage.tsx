@@ -4,6 +4,7 @@ import { updateVendorProfileApi } from "../api/authApi";
 import { Input } from "../components/ui/input";
 import { useAuth } from "../context/AuthContext";
 import { Icon, ICONS } from "../config/icons";
+import { Button } from "@/components/ui/button";
 
 type ProfileForm = {
   name: string;
@@ -166,13 +167,13 @@ export default function AccountDetailsPage() {
             </button>
           </>
         ) : (
-          <button
+          <Button
             onClick={() => setIsEditing(true)}
             className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
           >
             <Icon icon={ICONS.account} width={14} />
             Edit Profile
-          </button>
+          </Button>
         )}
       </div>
     </>
