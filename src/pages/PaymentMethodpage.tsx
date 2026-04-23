@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateRazorpayKeysApi } from "../api/paymentApi";
-import { Input } from "../components/ui/input";
 import { useAuth } from "../context/AuthContext";
 import { Icon, ICONS } from "../config/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 type RazorpayForm = {
   razorpay_key_id: string;
@@ -11,6 +16,36 @@ type RazorpayForm = {
 };
 
 type RazorpayFormErrors = Partial<Record<keyof RazorpayForm, string>>;
+
+function FormField({
+  label,
+  id,
+  error,
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  id: string;
+  error?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-1.5", className)}>
+      <Label htmlFor={id} className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        {...props}
+        className={cn(
+          "h-10 border border-zinc-200 bg-zinc-50 text-sm text-zinc-800 px-3 placeholder:text-zinc-300 focus-visible:ring-1 focus-visible:ring-[#CC543A] focus-visible:border-[#CC543A] disabled:opacity-60 disabled:cursor-not-allowed transition",
+          error && "border-red-400 focus-visible:ring-red-400"
+        )}
+      />
+      {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}
+    </div>
+  );
+}
 
 export default function PaymentMethodPage() {
   const { user, refreshUser } = useAuth();
@@ -89,56 +124,79 @@ export default function PaymentMethodPage() {
 
   return (
     <>
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-5">
-        <div className="space-y-4">
-          <Input
-            label="Razorpay Key ID"
-            value={form.razorpay_key_id}
-            onChange={(e) => handleChange("razorpay_key_id", e.target.value)}
-            disabled={!isEditing || isSaving}
-            error={errors.razorpay_key_id}
-          />
-          <Input
-            type="password"
-            label="Secret Key"
-            placeholder="Enter Razorpay secret key"
-            value={form.razorpay_key_secret}
-            onChange={(e) => handleChange("razorpay_key_secret", e.target.value)}
-            disabled={!isEditing || isSaving}
-            error={errors.razorpay_key_secret}
-          />
+      {/* Section Header */}
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100">
+        <div className="h-9 w-9 rounded-full bg-[#CC543A]/10 flex items-center justify-center shrink-0">
+          <Icon icon={ICONS.payments} width={16} className="text-[#CC543A]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-zinc-800">Razorpay Integration</p>
+          <p className="text-xs text-zinc-400">Connect your Razorpay account to accept payments.</p>
         </div>
       </div>
 
+      {/* Content */}
+      <div className="px-6 py-5 space-y-4">
+        <FormField
+          id="razorpay_key_id"
+          label="Razorpay Key ID"
+          value={form.razorpay_key_id}
+          placeholder="rzp_live_XXXXXXXXXXXX"
+          onChange={(e) => handleChange("razorpay_key_id", e.target.value)}
+          disabled={!isEditing || isSaving}
+          error={errors.razorpay_key_id}
+        />
+        <FormField
+          id="razorpay_key_secret"
+          label="Secret Key"
+          type="password"
+          placeholder={isEditing ? "Enter Razorpay secret key" : "••••••••••••••••"}
+          value={form.razorpay_key_secret}
+          onChange={(e) => handleChange("razorpay_key_secret", e.target.value)}
+          disabled={!isEditing || isSaving}
+          error={errors.razorpay_key_secret}
+        />
+
+        {/* Security notice */}
+        <Alert className="bg-amber-50 border-amber-200 py-3 px-4">
+          {/* <Lock className="h-3.5 w-3.5 text-amber-500 shrink-0" /> */}
+          <Icon icon="ic:outline-lock" width="24" height="24" className="text-primary" />
+          <AlertDescription className="text-xs text-primary font-medium ml-1">
+            Your secret key is encrypted and never shown after saving.
+          </AlertDescription>
+        </Alert>
+      </div>
+
       {/* Footer Actions */}
-      <div className="px-6 py-4 border-t border-zinc-100 flex justify-end gap-2">
+      <Separator className="bg-zinc-100" />
+      <div className="px-6 py-4 flex justify-end gap-2">
         {isEditing ? (
           <>
-            <button
+            <Button
+              variant="outline"
               onClick={handleCancel}
               disabled={isSaving}
-              className="px-4 py-2 border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition disabled:opacity-50"
+              className="px-4 h-9 text-sm font-medium text-zinc-700 border-zinc-200 hover:bg-zinc-50"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-50"
+              className="flex items-center gap-2 px-5 h-9 bg-[#CC543A] hover:bg-[#b84832] text-white text-sm font-semibold shadow-sm transition disabled:opacity-50"
             >
               <Icon icon={ICONS.payments} width={14} />
               {isSaving ? "Saving..." : "Update Keys"}
-            </button>
+            </Button>
           </>
         ) : (
-          <button
+          <Button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
+            className="flex items-center gap-2 px-5 h-9 bg-[#CC543A] hover:bg-[#b84832] text-white text-sm font-semibold shadow-sm transition"
           >
             <Icon icon={ICONS.payments} width={14} />
             Edit Razorpay
-          </button>
+          </Button>
         )}
       </div>
     </>

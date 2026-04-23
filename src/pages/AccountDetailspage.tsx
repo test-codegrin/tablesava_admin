@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateVendorProfileApi } from "../api/authApi";
-import { Input } from "../components/ui/input";
 import { useAuth } from "../context/AuthContext";
 import { Icon, ICONS } from "../config/icons";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 type ProfileForm = {
   name: string;
@@ -14,6 +17,36 @@ type ProfileForm = {
 };
 
 type FormErrors = Partial<Record<keyof ProfileForm, string>>;
+
+function FormField({
+  label,
+  id,
+  error,
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  id: string;
+  error?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-1.5", className)}>
+      <Label htmlFor={id} className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        {...props}
+        className={cn(
+          "h-10 border border-zinc-200 bg-zinc-50 text-sm text-zinc-800 px-3 placeholder:text-zinc-300 focus-visible:ring-1 focus-visible:ring-[#CC543A] focus-visible:border-[#CC543A] disabled:opacity-60 disabled:cursor-not-allowed transition",
+          error && "border-red-400 focus-visible:ring-red-400"
+        )}
+      />
+      {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}
+    </div>
+  );
+}
 
 export default function AccountDetailsPage() {
   const { user, refreshUser } = useAuth();
@@ -105,71 +138,96 @@ export default function AccountDetailsPage() {
 
   return (
     <>
+      {/* Section Header */}
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-100">
+        <div className="h-9 w-9 rounded-full bg-[#CC543A]/10 flex items-center justify-center shrink-0">
+          <Icon icon={ICONS.account} width={16} className="text-[#CC543A]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-zinc-800">Profile Details</p>
+          <p className="text-xs text-zinc-400">Keep your account information polished and up to date.</p>
+        </div>
+      </div>
+
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-5">
-        <div className="space-y-4">
-          <Input
-            label="Vendor ID *"
+      <div className="px-6 py-5">
+        {/* 2-column grid */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+          <FormField
+            id="vendor_id"
+            label="Vendor ID"
             value={String(user.vendor_id)}
             disabled
             readOnly
           />
-          <Input
+          <FormField
+            id="name"
             label="Restaurant Name *"
             value={form.name}
             onChange={(e) => handleChange("name", e.target.value)}
             disabled={!isEditing || isSaving}
             error={errors.name}
+            placeholder="Your restaurant name"
           />
-          <Input
-            type="email"
+          <FormField
+            id="email"
             label="E-Mail *"
+            type="email"
             value={form.email}
             onChange={(e) => handleChange("email", e.target.value)}
             disabled={!isEditing || isSaving}
             error={errors.email}
+            placeholder="you@example.com"
           />
-          <Input
+          <FormField
+            id="phone"
             label="Phone *"
             value={form.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
             disabled={!isEditing || isSaving}
             error={errors.phone}
+            placeholder="9876543210"
           />
-          <Input
+          {/* Subdomain full width */}
+          <FormField
+            id="subdomain"
             label="Subdomain *"
             value={form.subdomain}
             onChange={(e) => handleChange("subdomain", e.target.value)}
             disabled={!isEditing || isSaving}
             error={errors.subdomain}
+            placeholder="your-kitchen"
+            className="col-span-2"
           />
         </div>
       </div>
 
       {/* Footer Actions */}
-      <div className="px-6 py-4 border-t border-zinc-100 flex justify-end gap-2">
+      <Separator className="bg-zinc-100" />
+      <div className="px-6 py-4 flex justify-end gap-2">
         {isEditing ? (
           <>
-            <button
+            <Button
+              variant="outline"
               onClick={handleCancel}
               disabled={isSaving}
-              className="px-4 py-2 border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition disabled:opacity-50"
+              className="px-4 h-9 text-sm font-medium text-zinc-700 border-zinc-200 hover:bg-zinc-50 rounded-lg"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-50"
+              className="flex items-center gap-2 px-5 h-9 bg-[#CC543A] hover:bg-[#b84832] text-white text-sm font-semibold rounded-lg shadow-sm transition disabled:opacity-50"
             >
               <Icon icon={ICONS.account} width={14} />
-              {isSaving ? "Saving..." : "Update"}
-            </button>
+              {isSaving ? "Saving..." : "Update Profile"}
+            </Button>
           </>
         ) : (
           <Button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition"
+            className="flex items-center gap-2 px-5 h-9 bg-[#CC543A] hover:bg-[#b84832] text-white text-sm font-semibold rounded-lg shadow-sm transition"
           >
             <Icon icon={ICONS.account} width={14} />
             Edit Profile
