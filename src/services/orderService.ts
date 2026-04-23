@@ -93,7 +93,7 @@ const mapOrderSummary = (value: unknown): OrderSummary => {
     total_quantity: toNumber(payload.total_quantity, totalQuantityFromItems),
     item_quantities: itemQuantities,
     status: toOrderStatus(payload.status),
-    total_amount: toNumber(payload.total_amount ?? payload.total_price),
+    total_amount: toNumber(payload.amount),
     created_at: toNullableString(payload.created_at) ?? undefined,
     updated_at: toNullableString(payload.updated_at) ?? undefined,
   };

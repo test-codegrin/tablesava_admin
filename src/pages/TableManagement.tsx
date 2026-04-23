@@ -261,46 +261,51 @@ export default function TableManagement() {
         prev?.table_id === tableId ? mergeTableWithFallback(prev, detail) : prev,
       );
     } catch {
-      // Ignore row detail refresh failure because main list refresh already happened.
+      // Ignore row detail refresh failure and keep optimistic data.
     }
+  };
+
+  const patchTableRow = (tableId: number, updates: Partial<VendorTable>) => {
+    setTables((prev) =>
+      prev.map((table) => (table.table_id === tableId ? { ...table, ...updates } : table)),
+    );
+    setPreviewTable((prev) => (prev?.table_id === tableId ? { ...prev, ...updates } : prev));
+    setQrPreviewTable((prev) => (prev?.table_id === tableId ? { ...prev, ...updates } : prev));
   };
 
   const onToggleStatus = async (tableId: number) => {
     const current = tables.find((table) => table.table_id === tableId);
-    const nextStatus: StatusFlag | null =
-      current?.status === 1 ? 0 : current?.status === 0 ? 1 : null;
-
-    if (nextStatus !== null) {
-      setTables((prev) =>
-        prev.map((table) =>
-          table.table_id === tableId ? { ...table, status: nextStatus } : table,
-        ),
-      );
-      setPreviewTable((prev) =>
-        prev?.table_id === tableId ? { ...prev, status: nextStatus } : prev,
-      );
-      setQrPreviewTable((prev) =>
-        prev?.table_id === tableId ? { ...prev, status: nextStatus } : prev,
-      );
+    if (!current || (current.status !== 0 && current.status !== 1)) {
+      toast.error("Unable to change status for this table.");
+      return;
     }
+    const previousStatus = current.status;
+    const nextStatus: StatusFlag = current.status === 1 ? 0 : 1;
+    patchTableRow(tableId, { status: nextStatus });
 
     try {
       const response = await toggleTableStatus(tableId);
       toast.success("Status updated", { description: response.message });
-      await loadTables();
       await refreshTableRow(tableId);
     } catch (error) {
+      patchTableRow(tableId, { status: previousStatus });
       toast.error("Status update failed", { description: parseApiError(error).message });
     }
   };
 
   const onUpdateAvailability = async (tableId: number, isAvailable: StatusFlag) => {
+    const current = tables.find((table) => table.table_id === tableId);
+    const previousAvailability = current?.is_available;
+    patchTableRow(tableId, { is_available: isAvailable });
+
     try {
       const response = await updateTableAvailability(tableId, isAvailable);
       toast.success("Availability updated", { description: response.message });
-      await loadTables();
       await refreshTableRow(tableId);
     } catch (error) {
+      if (previousAvailability === 0 || previousAvailability === 1) {
+        patchTableRow(tableId, { is_available: previousAvailability });
+      }
       toast.error("Availability update failed", {
         description: parseApiError(error).message,
       });

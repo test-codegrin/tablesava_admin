@@ -156,3 +156,51 @@ export interface OrderSummary {
 export interface OrderDetail extends OrderSummary {
   items: OrderLineItem[];
 }
+
+export interface DashboardOverviewQuery {
+  latest_limit?: number;
+  weekly_days?: number;
+  payment_days?: number;
+  top_limit?: number;
+  top_days?: number;
+}
+
+export interface DashboardLatestOrder {
+  order_id: number;
+  table_number?: string | null;
+  total_amount: number;
+  status: OrderStatus;
+  created_at?: string;
+}
+
+export interface DashboardWeeklyRevenuePoint {
+  key: string;
+  label: string;
+  revenue: number;
+}
+
+export interface DashboardPaymentMethod {
+  method: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface DashboardTopDish {
+  dish_id: number | null;
+  dish_name: string;
+  quantity_sold: number;
+  total_sales: number;
+}
+
+export interface DashboardOverview {
+  todays_revenue: number;
+  live_current_orders: number;
+  latest_orders: DashboardLatestOrder[];
+  weekly_revenue: {
+    chart: DashboardWeeklyRevenuePoint[];
+  };
+  payment_methods: {
+    methods: DashboardPaymentMethod[];
+  };
+  top_selling_dishes: DashboardTopDish[];
+}

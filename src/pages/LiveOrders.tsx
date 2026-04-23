@@ -42,6 +42,16 @@ const badgeVariantForStatus = (status: OrderStatus): "secondary" | "default" | "
   return "outline";
 };
 
+const badgeClassForStatus = (status: OrderStatus) =>
+  status === 2 ? "border-green-600 bg-green-600 text-white" : undefined;
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(amount);
+
 export default function LiveOrders() {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [loading, setLoading] = useState(false);
@@ -137,10 +147,13 @@ export default function LiveOrders() {
         nextStatus,
       );
       toast.success("Order status updated", { description: response.message });
+      window.dispatchEvent(new Event("orders:status-updated"));
+      window.dispatchEvent(new Event("dashboard:refresh"));
 
+      setSelectedOrder(null);
+      setSelectedOrderId(null);
       await Promise.all([
         loadOrders(),
-        loadOrderDetail(selectedOrder.order_id),
         // Backend updates table availability during order lifecycle.
         getTables(),
       ]);
@@ -179,7 +192,7 @@ export default function LiveOrders() {
       <div className="grid grid-cols-1 gap-3 border border-zinc-200 bg-white p-4 md:grid-cols-3">
         <Input
           label="Search"
-          placeholder="Order ID or Table #"
+          placeholder="Order ID or Table Number"
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -218,9 +231,10 @@ export default function LiveOrders() {
           <TableHeader>
             <TableRow>
               <TableHead>Order ID</TableHead>
-              <TableHead>Table #</TableHead>
+              <TableHead>Table Number</TableHead>
               <TableHead>Items</TableHead>
               <TableHead>Total Qty</TableHead>
+              <TableHead>Total Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="text-right">Action</TableHead>
@@ -229,13 +243,13 @@ export default function LiveOrders() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={8}>
                   <Loader message="Loading orders..." className="min-h-[80px]" />
                 </TableCell>
               </TableRow>
             ) : paginatedOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-zinc-500">
+                <TableCell colSpan={8} className="text-center text-zinc-500">
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -246,8 +260,12 @@ export default function LiveOrders() {
                   <TableCell>{order.table_number ?? "-"}</TableCell>
                   <TableCell>{order.item_count ?? order.item_names?.length ?? 0}</TableCell>
                   <TableCell>{order.total_quantity ?? 0}</TableCell>
+                  <TableCell>{formatCurrency(order.total_amount ?? 0)}</TableCell>
                   <TableCell>
-                    <Badge variant={badgeVariantForStatus(order.status)}>
+                    <Badge
+                      variant={badgeVariantForStatus(order.status)}
+                      className={badgeClassForStatus(order.status)}
+                    >
                       {ORDER_STATUS_LABELS[order.status]}
                     </Badge>
                   </TableCell>
@@ -314,12 +332,12 @@ export default function LiveOrders() {
                   <p className="font-medium">{selectedOrder.order_id}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Table</p>
+                  <p className="text-xs text-zinc-500">Table Number</p>
                   <p className="font-medium">{selectedOrder.table_number ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500">Status</p>
-                  <p className="font-medium">
+                  <p className={selectedOrder.status === 2 ? "font-medium text-green-600" : "font-medium"}>
                     {ORDER_STATUS_LABELS[selectedOrder.status]}
                   </p>
                 </div>
