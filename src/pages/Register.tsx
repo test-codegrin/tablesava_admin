@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
+import { parseApiError } from "@/api/apiClient";
 
 const emptyForm: RegisterPayload = {
   name: "",
@@ -36,13 +37,16 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await registerApi(formData);
-      toast.success("Account Created", { description: "Admin account created successfully! Please sign in." });
+      const response = await registerApi(formData);
+      toast.success("Account Created", {
+        description:
+          response.message || "Admin account created successfully! Please sign in.",
+      });
       setFormData(emptyForm);
       setTimeout(() => navigate("/login"), 1000);
     } catch (error: unknown) {
-      const message = isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message || "Registration Failed"
+      const message = isAxiosError(error)
+        ? parseApiError(error).message
         : "Registration Failed";
       toast.error("Registration Failed", { description: message });
     } finally {

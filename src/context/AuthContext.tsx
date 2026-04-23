@@ -7,7 +7,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getMeApi, loginApi } from "../api/authApi";
+import { parseApiError } from "@/api/apiClient";
+import { getVendorMe, loginVendor } from "@/services/authService";
 import {
   AUTH_STORAGE_KEY,
   AUTH_UNAUTHORIZED_EVENT,
@@ -46,8 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setIsLoadingUser(true);
     try {
-      const data = await getMeApi();
-      setUser(data.vendor);
+      const vendor = await getVendorMe();
+      setUser(vendor);
     } catch {
       clearAuth();
     } finally {
@@ -56,17 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearAuth, token]);
 
   const login = useCallback(async (payload: LoginPayload) => {
-    const data = await loginApi(payload);
-    if (!data?.token) {
-      throw new Error("Token not found in login response");
-    }
+    const data = await loginVendor(payload);
 
     localStorage.setItem(AUTH_STORAGE_KEY, data.token);
     setToken(data.token);
     setIsLoadingUser(true);
     try {
-      const me = await getMeApi();
-      setUser(me.vendor);
+      const me = await getVendorMe();
+      setUser(me);
     } catch (error) {
       clearAuth();
       throw error;
@@ -90,8 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(storedToken);
       setIsLoadingUser(true);
       try {
-        const data = await getMeApi();
-        setUser(data.vendor);
+        const vendor = await getVendorMe();
+        setUser(vendor);
       } catch {
         clearAuth();
       } finally {
@@ -145,7 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    const parsed = parseApiError(new Error("useAuth must be used within an AuthProvider"));
+    throw new Error(parsed.message);
   }
   return context;
 };

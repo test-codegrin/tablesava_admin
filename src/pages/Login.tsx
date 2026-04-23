@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
+import { parseApiError } from "@/api/apiClient";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,15 +40,7 @@ export default function Login() {
         "/dashboard";
       setTimeout(() => navigate(redirectTo, { replace: true }), 800);
     } catch (error: unknown) {
-      const message =
-        typeof error === "object" &&
-        error &&
-        "response" in error &&
-        typeof (error as { response?: { data?: { message?: string } } })
-          .response?.data?.message === "string"
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : "Login Failed. Please try again.";
+      const message = parseApiError(error).message;
       toast.error("Login Failed", { description: message });
     } finally {
       setLoading(false);

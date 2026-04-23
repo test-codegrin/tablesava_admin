@@ -1,64 +1,29 @@
-export interface RegisterPayload {
-  name: string
-  subdomain: string
-  email: string
-  password: string
-  phone: string
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
+export type {
+  Category,
+  UpdateRazorpayPayload as UpdateRazorpayKeysPayload,
+  UpdateVendorProfilePayload,
+  VendorLoginPayload as LoginPayload,
+  VendorProfile,
+  VendorRegisterPayload as RegisterPayload,
+} from "./admin";
 
 export interface LoginResponse {
-  success: boolean;
-  message: string;
+  success?: boolean;
+  message?: string;
   token: string;
 }
 
-export interface VendorProfile {
-  vendor_id: number;
-  name: string;
-  email: string;
-  phone: string;
-  subdomain: string;
-  razorpay_key_id?: string;
-  avatar_url?: string;
-}
-
 export interface MeResponse {
-  vendor: VendorProfile;
-}
-
-export interface UpdateVendorProfilePayload {
-  name: string;
-  email: string;
-  phone: string;
-  subdomain: string;
+  vendor: import("./admin").VendorProfile;
 }
 
 export interface UpdateVendorProfileResponse {
-  success: boolean;
+  success?: boolean;
   message: string;
-}
-
-export interface UpdateRazorpayKeysPayload {
-  razorpay_key_id: string;
-  razorpay_key_secret: string;
 }
 
 export interface UpdateRazorpayKeysResponse {
   message: string;
-}
-
-export interface Category {
-  categories_id: number;
-  name: string;
-  description: string;
-  status: "active" | "inactive";
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Pagination {
@@ -67,3 +32,4 @@ export interface Pagination {
   total: number;
   total_pages: number;
 }
+

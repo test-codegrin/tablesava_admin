@@ -22,7 +22,6 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
         <Route
           path="/register"
           element={
@@ -40,7 +39,6 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Protected dashboard — layout wraps all app pages */}
         <Route
           element={
             <ProtectedRoute>
@@ -67,9 +65,9 @@ export default function AppRoutes() {
           </Route>
         </Route>
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
+

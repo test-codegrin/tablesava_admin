@@ -1,4 +1,9 @@
-import api from "./apiClient"
+import {
+  getVendorMe,
+  loginVendor,
+  registerVendor,
+} from "@/services/authService";
+import { updateVendorProfile } from "@/services/vendorService";
 import type {
   LoginPayload,
   LoginResponse,
@@ -6,49 +11,27 @@ import type {
   RegisterPayload,
   UpdateVendorProfilePayload,
   UpdateVendorProfileResponse,
-} from "../types/dataTypes"
+} from "../types/dataTypes";
 
-// Register
-export const registerApi = async (data: RegisterPayload) => {
-  const response = await api.post("/vendor/register", data)
-  return response.data
-}
+export const registerApi = async (data: RegisterPayload) => registerVendor(data);
 
-// Login
 export const loginApi = async (data: LoginPayload): Promise<LoginResponse> => {
-  const endpoints = ["/vendor/login", "/user/login"];
+  const response = await loginVendor(data);
+  return {
+    success: true,
+    message: response.message,
+    token: response.token,
+  };
+};
 
-  for (const endpoint of endpoints) {
-    try {
-      const response = await api.post<LoginResponse>(endpoint, data);
-      return response.data;
-    } catch {
-      // Try next endpoint variant.
-    }
-  }
-
-  throw new Error("Login endpoint not available");
-}
-
-// Authenticated vendor profile
 export const getMeApi = async (): Promise<MeResponse> => {
-  const endpoints = ["/vendor/me", "/user/me"];
-
-  for (const endpoint of endpoints) {
-    try {
-      const response = await api.get<MeResponse>(endpoint);
-      return response.data;
-    } catch {
-      // Try next endpoint variant.
-    }
-  }
-
-  throw new Error("Profile endpoint not available");
-}
+  const vendor = await getVendorMe();
+  return { vendor };
+};
 
 export const updateVendorProfileApi = async (
   data: UpdateVendorProfilePayload,
 ): Promise<UpdateVendorProfileResponse> => {
-  const response = await api.put<UpdateVendorProfileResponse>("/vendor/profile", data);
-  return response.data;
-}
+  const response = await updateVendorProfile(data);
+  return { success: true, message: response.message };
+};

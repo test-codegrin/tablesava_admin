@@ -1,34 +1,26 @@
-import api from "./apiClient"
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+  getCategoryById,
+  updateCategory,
+} from "@/services/categoryService";
+import type { StatusFlag } from "@/types/admin";
 
-// ─── Categories ───────────────────────────────────────────────────────────────
+export const getCategoriesApi = async (status?: StatusFlag) => getCategories(status);
 
-// Get all categories
-export const getCategoriesApi = async () => {
-  const response = await api.get("/categories")
-  return response.data
-}
+export const getCategoryByIdApi = async (id: number) => getCategoryById(id);
 
-// Create category
 export const createCategoryApi = async (data: {
-  name: string
-  description: string
-  status: string
-}) => {
-  const response = await api.post("/categories", data)
-  return response.data
-}
+  name: string;
+  description: string;
+  status: StatusFlag;
+}) => createCategory(data);
 
-// Update category
 export const updateCategoryApi = async (
   id: number,
-  data: { name: string; description: string; status: string }
-) => {
-  const response = await api.put(`/categories/${id}`, data)
-  return response.data
-}
+  data: { name: string; description: string; status: StatusFlag },
+) => updateCategory(id, data);
 
-// Delete category
-export const deleteCategoryApi = async (id: number) => {
-  const response = await api.delete(`/categories/${id}`)
-  return response.data
-}
+export const deleteCategoryApi = async (id: number) => deleteCategory(id);
+

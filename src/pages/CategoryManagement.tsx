@@ -1,19 +1,17 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { parseApiError } from "@/api/apiClient";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -22,40 +20,53 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import type { Category, StatusFlag } from "@/types/admin";
+import {
+  createCategory,
+  deleteCategory,
+  filterCategoriesLocally,
+  getCategories,
+  paginateCategories,
+  updateCategory,
+} from "@/services/categoryService";
 
-const API_BASE = "https://1n2nng7m-3000.inc1.devtunnels.ms";
+const PAGE_SIZE = 8;
 
-interface CategoryItem {
-  categories_id: number;
+type CategoryForm = {
   name: string;
   description: string;
-  status: "active" | "inactive";
-}
+  status: StatusFlag;
+};
+
+const initialForm: CategoryForm = {
+  name: "",
+  description: "",
+  status: 1,
+};
+
+const statusLabel = (status: StatusFlag) => (status === 1 ? "Active" : "Inactive");
 
 export default function CategoryManagement() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    status: "active",
-  });
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | StatusFlag>("all");
+  const [page, setPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Category | null>(null);
+  const [form, setForm] = useState<CategoryForm>(initialForm);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const fetchCategories = async () => {
+  const loadCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/categories`);
-      const data = await res.json();
-      if (data.success) {
-        setCategories(data.data.categories);
-      }
-    } catch {
-      toast.error("Server error", {
-        description: "Could not fetch categories.",
+      const response = await getCategories();
+      setCategories(response.categories);
+    } catch (error) {
+      toast.error("Failed to fetch categories", {
+        description: parseApiError(error).message,
       });
     } finally {
       setLoading(false);
@@ -63,212 +74,288 @@ export default function CategoryManagement() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    void loadCategories();
   }, []);
 
-  const openAdd = () => {
-    setEditingId(null);
-    setForm({ name: "", description: "", status: "active" });
-    setIsOpen(true);
+  const filtered = useMemo(
+    () => filterCategoriesLocally(categories, search, statusFilter),
+    [categories, search, statusFilter],
+  );
+
+  const paginated = useMemo(() => paginateCategories(filtered, page, PAGE_SIZE), [filtered, page]);
+  const totalPages = Math.max(1, Math.ceil(paginated.total / PAGE_SIZE));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const openCreateDialog = () => {
+    setEditing(null);
+    setForm(initialForm);
+    setFormError(null);
+    setDialogOpen(true);
   };
 
-  const openEdit = (cat: CategoryItem) => {
-    setEditingId(cat.categories_id);
+  const openEditDialog = (category: Category) => {
+    setEditing(category);
     setForm({
-      name: cat.name,
-      description: cat.description,
-      status: cat.status,
+      name: category.name,
+      description: category.description,
+      status: category.status,
     });
-    setIsOpen(true);
+    setFormError(null);
+    setDialogOpen(true);
   };
 
-  const handleSave = async () => {
+  const validateForm = () => {
     if (!form.name.trim()) {
-      toast.warning("Name required", {
-        description: "Please enter a category name.",
-      });
+      throw new Error("Category name is required.");
+    }
+    if (!(form.status === 0 || form.status === 1)) {
+      throw new Error("Category status must be 0 or 1.");
+    }
+  };
+
+  const onSave = async () => {
+    try {
+      validateForm();
+      setFormError(null);
+    } catch (error) {
+      const message = parseApiError(error).message;
+      setFormError(message);
+      toast.error("Validation failed", { description: message });
       return;
     }
 
     setSaving(true);
     try {
-      const url =
-        editingId !== null
-          ? `${API_BASE}/categories/${editingId}`
-          : `${API_BASE}/categories`;
+      const response = editing
+        ? await updateCategory(editing.categories_id, form)
+        : await createCategory(form);
 
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      toast.success(editing ? "Category updated" : "Category created", {
+        description: response.message,
       });
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success(editingId ? "Category Updated" : "Category Created", {
-          description: editingId
-            ? "Category has been updated successfully."
-            : "New category has been created successfully.",
-        });
-        fetchCategories();
-        setIsOpen(false);
-      } else {
-        toast.error("Failed", {
-          description: "Something went wrong. Please try again.",
-        });
-      }
-    } catch {
-      toast.error("Server error", {
-        description: "Could not save category.",
+      setDialogOpen(false);
+      await loadCategories();
+    } catch (error) {
+      toast.error("Category save failed", {
+        description: parseApiError(error).message,
       });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this category?")) return;
+  const onDelete = async (categoryId: number) => {
+    if (!window.confirm("Delete this category?")) {
+      return;
+    }
 
     try {
-      await fetch(`${API_BASE}/categories/${id}`, {
-        method: "DELETE",
-      });
-      toast.success("Category Deleted", {
-        description: "The category has been removed.",
-      });
-      fetchCategories();
-    } catch {
-      toast.error("Error", {
-        description: "Could not delete category.",
+      const response = await deleteCategory(categoryId);
+      toast.success("Category deleted", { description: response.message });
+      await loadCategories();
+    } catch (error) {
+      toast.error("Delete failed", {
+        description: parseApiError(error).message,
       });
     }
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Category Management</h2>
-        <Button onClick={openAdd}>+ Add Category</Button>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold text-zinc-900">Category Management</h1>
+        <Button type="button" onClick={openCreateDialog}>
+          Add Category
+        </Button>
       </div>
 
-      {/* Table */}
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <p>Loading...</p>
+      <div className="grid grid-cols-1 gap-3 border border-zinc-200 bg-white p-4 md:grid-cols-3">
+        <Input
+          label="Search"
+          placeholder="Search by name or description"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
+        />
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="statusFilter">Status Filter</Label>
+          <select
+            id="statusFilter"
+            className="h-11 border border-black bg-zinc-50 px-3 text-sm"
+            value={String(statusFilter)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setStatusFilter(value === "all" ? "all" : Number(value) === 1 ? 1 : 0);
+              setPage(1);
+            }}
+          >
+            <option value="all">All</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
         </div>
-      ) : (
+        <div className="flex items-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              void loadCategories();
+            }}
+            disabled={loading}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="border border-zinc-200 bg-white p-2">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
-              <TableHead>NAME</TableHead>
-              <TableHead>DESCRIPTION</TableHead>
-              <TableHead>STATUS</TableHead>
-              <TableHead>ACTIONS</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
-
           <TableBody>
-            {categories.map((cat) => (
-              <TableRow key={cat.categories_id}>
-                <TableCell>#{cat.categories_id}</TableCell>
-                <TableCell>{cat.name}</TableCell>
-                <TableCell>{cat.description}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={cat.status === "active" ? "default" : "secondary"}
-                  >
-                    {cat.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => openEdit(cat)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    // className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    onClick={() => handleDelete(cat.categories_id)}
-                  >
-                    Delete
-                  </Button>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-zinc-500">
+                  Loading categories...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : paginated.items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-zinc-500">
+                  No categories found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginated.items.map((category) => (
+                <TableRow key={category.categories_id}>
+                  <TableCell>{category.categories_id}</TableCell>
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell className="max-w-[260px] truncate">{category.description}</TableCell>
+                  <TableCell>
+                    <Badge variant={category.status === 1 ? "default" : "secondary"}>
+                      {statusLabel(category.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => openEditDialog(category)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          void onDelete(category.categories_id);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
-      )}
+      </div>
 
-      {/* Dialog */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
+      <div className="flex items-center justify-between text-sm text-zinc-600">
+        <p>
+          Showing {paginated.items.length} of {paginated.total}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Prev
+          </Button>
+          <span>
+            Page {page} / {totalPages}
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={page >= totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingId ? "Edit Category" : "Add Category"}
-            </DialogTitle>
+            <DialogTitle>{editing ? "Edit Category" : "Create Category"}</DialogTitle>
           </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                placeholder="Enter name"
-                value={form.name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setForm({ ...form, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="description">Description</Label>
+          <div className="space-y-4">
+            <Input
+              label="Name"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            />
+            <div className="space-y-1.5">
+              <Label htmlFor="category-description">Description</Label>
               <Textarea
-                id="description"
-                placeholder="Enter description"
+                id="category-description"
                 value={form.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setForm({ ...form, description: e.target.value })
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, description: event.target.value }))
                 }
               />
             </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <RadioGroup
-                value={form.status}
-                onValueChange={(value: string) =>
-                  setForm({ ...form, status: value })
+            <div className="space-y-1.5">
+              <Label htmlFor="category-status">Status</Label>
+              <select
+                id="category-status"
+                className="h-11 w-full border border-black bg-zinc-50 px-3 text-sm"
+                value={String(form.status)}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, status: Number(event.target.value) === 1 ? 1 : 0 }))
                 }
-                className="flex gap-4"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="active" id="active" />
-                  <Label htmlFor="active">Active</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="inactive" id="inactive" />
-                  <Label htmlFor="inactive">Inactive</Label>
-                </div>
-              </RadioGroup>
+                <option value="1">Active (1)</option>
+                <option value="0">Inactive (0)</option>
+              </select>
             </div>
+            {formError && <p className="text-sm text-red-600">{formError}</p>}
           </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={saving}
+            >
               Cancel
             </Button>
-            <Button disabled={saving} onClick={handleSave}>
-              {saving ? "Saving..." : "Save"}
+            <Button type="button" onClick={() => void onSave()} disabled={saving}>
+              {saving ? "Saving..." : editing ? "Update Category" : "Create Category"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -276,3 +363,4 @@ export default function CategoryManagement() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import api from "./apiClient";
+import { updateRazorpayCredentials } from "@/services/vendorService";
 import type {
   UpdateRazorpayKeysPayload,
   UpdateRazorpayKeysResponse,
@@ -7,9 +7,6 @@ import type {
 export const updateRazorpayKeysApi = async (
   data: UpdateRazorpayKeysPayload,
 ): Promise<UpdateRazorpayKeysResponse> => {
-  const response = await api.post<UpdateRazorpayKeysResponse>(
-    "/vendor/update-razorpay",
-    data,
-  );
-  return response.data;
+  const response = await updateRazorpayCredentials(data);
+  return { message: response.message };
 };
