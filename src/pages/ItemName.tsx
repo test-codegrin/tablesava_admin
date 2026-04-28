@@ -69,6 +69,19 @@ type ItemForm = {
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
+// ─── Photo URL helper ────────────────────────────────────────────────────────
+// If the stored URL already contains a host (http/https) we use it as-is.
+// Otherwise we prepend the API base so relative paths work too.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
+
+const resolvePhotoUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // relative path  →  prepend API base
+  return `${API_BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 const emptyOption = (): ItemOptionForm => ({
   name: "",
   price_delta: 0,
@@ -104,24 +117,24 @@ const toFormFromItem = (item: Item): ItemForm => {
     price: String(item.price),
     status: item.status,
     photo: null,
-    existing_photo_url: item.photo_url ?? null,
+    existing_photo_url: item.photo_url ?? null,   // keep original value; resolvePhotoUrl used at render time
     option_groups:
       optionGroups.length > 0
         ? optionGroups.map((group) => ({
-            group_id: group.group_id,
-            name: group.name,
-            multiple_select: group.multiple_select,
-            is_required: group.is_required,
-            status: group.status ?? 1,
+          group_id: group.group_id,
+          name: group.name,
+          multiple_select: group.multiple_select,
+          is_required: group.is_required,
+          status: group.status ?? 1,
+          is_deleted: false,
+          options: group.options.map((option) => ({
+            option_id: option.option_id,
+            name: option.name,
+            price_delta: option.price_delta,
+            status: 1,
             is_deleted: false,
-            options: group.options.map((option) => ({
-              option_id: option.option_id,
-              name: option.name,
-              price_delta: option.price_delta,
-              status: 1,
-              is_deleted: false,
-            })),
-          }))
+          })),
+        }))
         : [emptyOptionGroup()],
   };
 };
@@ -266,7 +279,9 @@ export default function ItemName() {
     [form.option_groups],
   );
 
-  const imagePreviewUrl = selectedPhotoPreviewUrl || form.existing_photo_url || null;
+  // Resolved URLs used for <img> tags
+  const imagePreviewUrl =
+    selectedPhotoPreviewUrl || resolvePhotoUrl(form.existing_photo_url) || null;
 
   const getCategoryName = (categoryId: number) =>
     categories.find((category) => category.categories_id === categoryId)?.name || "-";
@@ -632,7 +647,7 @@ export default function ItemName() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7}>
-                    <Loader message="Loading items..." className="min-h-[100px]" />
+                    <Loader message="Loading items..." className="min-h-25" />
                   </TableCell>
                 </TableRow>
               ) : paginatedItems.length === 0 ? (
@@ -642,74 +657,89 @@ export default function ItemName() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedItems.map((item) => (
-                  <TableRow key={item.item_id} className="border-b border-[#f3e8de] hover:bg-[#fff8f2]">
-                    <TableCell>
-                      <Checkbox />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="size-10 overflow-hidden border border-[#efdfd0] bg-[#f8f1ea]">
-                          {item.photo_url ? (
-                            <img src={item.photo_url} alt={item.name} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="grid h-full place-items-center text-[10px] text-[#ae9883]">IMG</div>
-                          )}
+                paginatedItems.map((item) => {
+                  const resolvedThumb = resolvePhotoUrl(item.photo_url);
+                  return (
+                    <TableRow key={item.item_id} className="border-b border-[#f3e8de] hover:bg-[#fff8f2]">
+                      <TableCell>
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className="size-10 overflow-hidden border border-[#efdfd0] bg-[#f8f1ea]">
+                            {resolvedThumb ? (
+                              <img
+                                src={resolvedThumb}
+                                alt={item.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  // Hide broken image and show fallback text
+                                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                                  const parent = (e.currentTarget as HTMLImageElement).parentElement;
+                                  if (parent) {
+                                    parent.innerHTML =
+                                      '<div class="grid h-full place-items-center text-[10px] text-[#ae9883]">IMG</div>';
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <div className="grid h-full place-items-center text-[10px] text-[#ae9883]">IMG</div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-[#3d312a]">{item.name}</p>
+                            <p className="text-[11px] text-[#a6907e]">ID: MENU-{String(item.item_id).padStart(3, "0")}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-[#3d312a]">{item.name}</p>
-                          <p className="text-[11px] text-[#a6907e]">ID: MENU-{String(item.item_id).padStart(3, "0")}</p>
+                      </TableCell>
+                      <TableCell className="text-[#5e4f44]">{getCategoryName(item.categories_id)}</TableCell>
+                      <TableCell className="font-medium text-[#3f3025]">{asCurrency(item.price)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={item.status === 1 ? "default" : "secondary"}
+                          className={`rounded-none px-2 py-0.5 text-[10px] tracking-[0.05em] ${item.status === 1
+                              ? "border border-[#b8dfc5] bg-[#ecfff2] text-[#2e9c4f]"
+                              : "border border-[#f0dcc5] bg-[#fff5e9] text-[#c67832]"
+                            }`}
+                        >
+                          {statusLabel(item.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-[#6e6155]">{asDate(item.created_at)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="outline"
+                            className="rounded-none border-[#e7cbb3] text-[#9f6d47] hover:bg-[#fff2e7]"
+                            onClick={() => void openEditScreen(item)}
+                          >
+                            <RiEdit2Line className="size-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="outline"
+                            className="rounded-none border-[#e7cbb3] text-[#8d664f] hover:bg-[#fff2e7]"
+                            onClick={() => void onToggleStatus(item)}
+                          >
+                            <span className="text-[10px] font-semibold uppercase">{item.status === 1 ? "Off" : "On"}</span>
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="outline"
+                            className="rounded-none border-[#efccb8] text-[#b8482e] hover:bg-[#fff0ea]"
+                            onClick={() => void onDelete(item.item_id)}
+                          >
+                            <RiDeleteBinLine className="size-3.5" />
+                          </Button>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-[#5e4f44]">{getCategoryName(item.categories_id)}</TableCell>
-                    <TableCell className="font-medium text-[#3f3025]">{asCurrency(item.price)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={item.status === 1 ? "default" : "secondary"}
-                        className={`rounded-none px-2 py-0.5 text-[10px] tracking-[0.05em] ${
-                          item.status === 1
-                            ? "border border-[#b8dfc5] bg-[#ecfff2] text-[#2e9c4f]"
-                            : "border border-[#f0dcc5] bg-[#fff5e9] text-[#c67832]"
-                        }`}
-                      >
-                        {statusLabel(item.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-[#6e6155]">{asDate(item.created_at)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1.5">
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="outline"
-                          className="rounded-none border-[#e7cbb3] text-[#9f6d47] hover:bg-[#fff2e7]"
-                          onClick={() => void openEditScreen(item)}
-                        >
-                          <RiEdit2Line className="size-3.5" />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="outline"
-                          className="rounded-none border-[#e7cbb3] text-[#8d664f] hover:bg-[#fff2e7]"
-                          onClick={() => void onToggleStatus(item)}
-                        >
-                          <span className="text-[10px] font-semibold uppercase">{item.status === 1 ? "Off" : "On"}</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="outline"
-                          className="rounded-none border-[#efccb8] text-[#b8482e] hover:bg-[#fff0ea]"
-                          onClick={() => void onDelete(item.item_id)}
-                        >
-                          <RiDeleteBinLine className="size-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -808,14 +838,14 @@ export default function ItemName() {
 
         {detailLoading ? (
           <div className="p-8">
-            <Loader message="Loading item details..." className="min-h-[180px]" />
+            <Loader message="Loading item details..." className="min-h-45" />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="space-y-4">
               <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
                 <div className="mb-3 flex items-center justify-between border-b border-[#efddce] pb-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a65e29]">Basic Details</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Basic Details</h3>
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#b9a494]">Required Info</span>
                 </div>
 
@@ -894,7 +924,7 @@ export default function ItemName() {
 
               <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
                 <div className="mb-3 flex items-center justify-between border-b border-[#efddce] pb-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a65e29]">Customization Groups</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Customization Groups</h3>
                   <Button
                     type="button"
                     variant="outline"
@@ -1121,13 +1151,31 @@ export default function ItemName() {
 
             <div className="space-y-4">
               <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#a65e29]">Item Image</h3>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Item Image</h3>
                 <label
                   htmlFor="item-photo-upload"
                   className="grid min-h-56 cursor-pointer place-items-center border border-dashed border-[#efbe95] bg-[#fff5ec] p-4 text-center"
                 >
                   {imagePreviewUrl ? (
-                    <img src={imagePreviewUrl} alt="Item preview" className="h-full max-h-48 w-full object-cover" />
+                    <img
+                      src={imagePreviewUrl}
+                      alt="Item preview"
+                      className="h-full max-h-48 w-full object-cover"
+                      onError={(e) => {
+                        // On load failure fall back to the upload placeholder
+                        const el = e.currentTarget as HTMLImageElement;
+                        el.style.display = "none";
+                        const label = el.closest("label");
+                        if (label) {
+                          label.innerHTML = `
+                            <div class="space-y-2 text-[#c6743a]">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v16m8-8H4"/></svg>
+                              <p class="text-xs font-semibold uppercase tracking-[0.07em]">Drop image or click to upload</p>
+                              <p class="text-[11px] text-[#b59378]">Square format (1080x1080) recommended</p>
+                            </div>`;
+                        }
+                      }}
+                    />
                   ) : (
                     <div className="space-y-2 text-[#c6743a]">
                       <RiImageAddLine className="mx-auto size-8" />
@@ -1163,7 +1211,7 @@ export default function ItemName() {
               </section>
 
               <section className="border border-[#f36c21] bg-[#f36c21] p-3 text-white">
-                <h3 className="text-xs font-semibold uppercase tracking-[0.1em] text-[#ffd9bf]">Catalog Preview</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#ffd9bf]">Catalog Preview</h3>
                 <div className="mt-3 space-y-2 text-xs">
                   <div className="flex items-center justify-between border-b border-white/30 pb-1">
                     <span className="text-[#ffd9bf]">Visibility</span>

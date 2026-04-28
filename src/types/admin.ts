@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type StatusFlag = 0 | 1;
 
 export type OrderStatus = 0 | 1 | 2;
@@ -40,6 +42,7 @@ export interface UpdateRazorpayPayload {
 }
 
 export interface Category {
+  item_count: ReactNode;
   categories_id: number;
   name: string;
   description: string;

@@ -160,7 +160,7 @@ export const buildOptionGroupReplacePayload = (groups: ItemOptionGroup[]) => {
   validateOptionGroups(groups);
 
   return groups.map((group) => ({
-    group_name: group.name.trim(),
+    name: group.name.trim(),
     multiple_select: group.multiple_select,
     is_required: group.is_required,
     status: group.status ?? 1,

@@ -111,8 +111,8 @@ const availabilityColorClass = (state: AvailabilityStateChoice) =>
 
 const statusBadgeClass = (status?: StatusFlag) =>
   status === 1
-    ? "border border-[#b7dfc6] bg-[#ecfff3] text-[#2a994b]"
-    : "border border-[#e7d9cb] bg-[#f8f4ef] text-[#8e7d70]";
+    ? "border border-[#16A34A] text-[#15803D]"
+    : "border border-[#E0C0B1] text-[#94A3B8]";
 
 const orangeButtonClass =
   "h-10 rounded-none border border-[#f36c21] bg-[#f36c21] px-4 text-xs uppercase tracking-[0.07em] text-white hover:bg-[#de5b15]";
@@ -497,7 +497,7 @@ export default function TableManagement() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={7}>
-                  <Loader message="Loading tables..." className="min-h-[80px]" />
+                  <Loader message="Loading tables..." className="min-h-20" />
                 </TableCell>
               </TableRow>
             ) : paginatedTables.length === 0 ? (
@@ -522,7 +522,7 @@ export default function TableManagement() {
                     </TableCell>
                     <TableCell className="text-[#584a41]">{getAreaLabel(table.area_type)}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={`rounded-none px-2 py-0.5 text-[10px] ${statusBadgeClass(table.status)}`}>
+                      <Badge variant="outline" className={`rounded-none px-2 py-0.5 text-[10px]  ${statusBadgeClass(table.status)}`}>
                         {statusLabel(table.status)}
                       </Badge>
                     </TableCell>
@@ -630,9 +630,9 @@ export default function TableManagement() {
   );
 
   const renderEditorScreen = () => (
-    <section className="mx-auto w-full max-w-[980px] space-y-4">
+    <section className="mx-auto w-full max-w-245 space-y-4">
       <div className="space-y-0.5">
-        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-[#c56524]">
+        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#c56524]">
           <button
             type="button"
             className="hover:text-[#a65012]"
@@ -648,7 +648,7 @@ export default function TableManagement() {
         </h2>
       </div>
 
-      <div className="mx-auto w-full max-w-[760px] border border-[#efcfb2] bg-[#fcf7f2] p-4">
+      <div className="mx-auto w-full max-w-190 border border-[#efcfb2] bg-[#fcf7f2] p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Table Number"
@@ -760,7 +760,7 @@ export default function TableManagement() {
         )}
       </div>
 
-      <div className="mx-auto grid w-full max-w-[760px] grid-cols-1 gap-2 border-t border-[#efcfb2] pt-3 sm:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-190 grid-cols-1 gap-2 border-t border-[#efcfb2] pt-3 sm:grid-cols-2">
         <Button
           type="button"
           className="h-11 rounded-none border border-[#a65111] bg-[#a65111] text-sm uppercase tracking-[0.07em] text-white hover:bg-[#93480f]"
@@ -781,7 +781,7 @@ export default function TableManagement() {
       </div>
 
       {editorMode === "edit" && editingTableId && (
-        <div className="mx-auto flex w-full max-w-[760px] justify-end">
+        <div className="mx-auto flex w-full max-w-190 justify-end">
           <Button
             type="button"
             variant="destructive"
@@ -797,7 +797,7 @@ export default function TableManagement() {
       )}
 
       {currentEditingTable && (
-        <div className="mx-auto w-full max-w-[760px]">
+        <div className="mx-auto w-full max-w-190">
           <Button
             type="button"
             variant="outline"

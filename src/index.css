@@ -193,10 +193,10 @@
   }
 
   @media (min-width: 1200px) {
-    .dish-management-page {
+    /* .dish-management-page {
       transform: scale(0.97);
       transform-origin: top left;
       width: calc(100% / 0.97);
-    }
+    } */
   }
 }

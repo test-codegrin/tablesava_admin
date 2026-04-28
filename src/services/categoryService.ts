@@ -10,13 +10,14 @@ export const validateCategoryStatus = (value: unknown): value is StatusFlag =>
 const mapCategory = (value: unknown): Category => {
   const payload = isRecord(value) ? value : {};
   return {
-    categories_id: toNumber(payload.categories_id),
-    name: toString(payload.name),
-    description: toString(payload.description),
-    status: toStatusFlag(payload.status),
-    created_at: toNullableString(payload.created_at) ?? undefined,
-    updated_at: toNullableString(payload.updated_at) ?? undefined,
-  };
+  categories_id: toNumber(payload.categories_id),
+  name: toString(payload.name),
+  description: toString(payload.description),
+  status: toStatusFlag(payload.status),
+  created_at: toNullableString(payload.created_at) ?? undefined,
+  updated_at: toNullableString(payload.updated_at) ?? undefined,
+  item_count: toNumber(payload.item_count),
+};
 };
 
 const extractCategoryArray = (value: unknown): Category[] => {
