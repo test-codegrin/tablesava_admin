@@ -29,6 +29,9 @@ import {
 import { getTables } from "@/services/tableService";
 import type { OrderDetail, OrderStatus, OrderSummary } from "@/types/admin";
 import Loader from "@/pages/Loader";
+import {
+  RiSearchLine,
+} from "@remixicon/react";
 
 const PAGE_SIZE = 10;
 
@@ -43,7 +46,7 @@ const badgeVariantForStatus = (status: OrderStatus): "secondary" | "default" | "
 };
 
 const badgeClassForStatus = (status: OrderStatus) =>
-  status === 2 ? "border-green-600 bg-green-600 text-white" : undefined;
+  status === 2 ? "border-green-600 bg-white text-green-600 p-2" : undefined;
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -174,7 +177,7 @@ export default function LiveOrders() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-6 bg-[#fff8f6]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-lg font-semibold text-zinc-900">Live Orders</h1>
         <Button
@@ -189,53 +192,78 @@ export default function LiveOrders() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 border border-zinc-200 bg-white p-4 md:grid-cols-3">
-        <Input
-          label="Search"
-          placeholder="Order ID or Table Number"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-        />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="order-status-filter" className="text-sm font-medium">
-            Status Filter
-          </label>
-          <select
-            id="order-status-filter"
-            className="h-11 border border-black bg-zinc-50 px-3 text-sm"
-            value={String(statusFilter)}
-            onChange={(event) => {
-              const value = event.target.value;
-              if (value === "all") {
-                setStatusFilter("all");
-              } else {
-                const parsed = Number(value);
-                setStatusFilter(parsed === 1 ? 1 : parsed === 2 ? 2 : 0);
-              }
-              setPage(1);
-            }}
-          >
-            <option value="all">All</option>
-            <option value="0">Pending</option>
-            <option value="1">Accepted</option>
-            <option value="2">Completed</option>
-          </select>
-        </div>
-      </div>
+  <div className="grid grid-cols-1 gap-4 border border-[#ecd9c6] bg-white p-5 md:grid-cols-[1fr_220px] text-[16px] text-[#6e5d50]">
+  
+  {/* Search */}
+<div className="flex flex-col gap-2">
+  <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]">
+    Search Orders
+  </label>
 
-      <div className="border border-zinc-200 bg-white p-2">
+  <div className="relative">
+    
+    <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#a99280]" />
+
+    <Input
+      placeholder="Order ID or Table Number"
+      className="h-11 border-[#e7cdb8] bg-white pl-9 text-sm"
+      value={search}
+      onChange={(event) => {
+        setSearch(event.target.value);
+        setPage(1);
+      }}
+    />
+  </div>
+</div>
+
+  {/* Status Filter */}
+  <div className="flex flex-col gap-2">
+    <label
+      htmlFor="order-status-filter"
+      className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]"
+    >
+      Order Status
+    </label>
+
+    <select
+      id="order-status-filter"
+      className="h-11 border border-[#e7cdb8] bg-white px-3 text-sm text-[#4d3d32] outline-none focus:border-[#c56524]"
+      value={String(statusFilter)}
+      onChange={(event) => {
+        const value = event.target.value;
+
+        if (value === "all") {
+          setStatusFilter("all");
+        } else {
+          const parsed = Number(value);
+
+          setStatusFilter(
+            parsed === 1 ? 1 : parsed === 2 ? 2 : 0
+          );
+        }
+
+        setPage(1);
+      }}
+    >
+      <option value="all">All Orders</option>
+      <option value="0">Pending</option>
+      <option value="1">Accepted</option>
+      <option value="2">Completed</option>
+    </select>
+  </div>
+
+</div>
+
+      <div className="border border-[#ecd9c6] bg-white">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-[#f8efe7] text-[#5b4e45]">
             <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Table Number</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Total Qty</TableHead>
-              <TableHead>Total Amount</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-[#7c2d12]">Order ID</TableHead>
+              <TableHead className="text-[#7c2d12]">Table Number</TableHead>
+              <TableHead className="text-[#7c2d12]">Items</TableHead>
+              <TableHead className="text-[#7c2d12]">Total Qty</TableHead>
+              <TableHead className="text-[#7c2d12]">Total Amount</TableHead>
+              <TableHead className="text-[#7c2d12] text-right">Status</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -270,8 +298,9 @@ export default function LiveOrders() {
                     </Badge>
                   </TableCell>
                   <TableCell>{order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right ">
                     <Button
+                      className="bg-white border border-[#e7cdb8] hover:bg-[#f8efe7]"
                       type="button"
                       size="sm"
                       onClick={() => {

@@ -6,7 +6,14 @@ import type { TableQrCodeRecord } from "@/types/admin";
 
 // ── icons (inline SVGs to avoid extra deps) ──────────────────────────────────
 const QrIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <rect x="3" y="3" width="7" height="7" />
     <rect x="14" y="3" width="7" height="7" />
     <rect x="3" y="14" width="7" height="7" />
@@ -15,7 +22,14 @@ const QrIcon = () => (
 );
 
 const DownloadIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
@@ -23,34 +37,69 @@ const DownloadIcon = () => (
 );
 
 const CloseIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
 const RefreshIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <polyline points="23 4 23 10 17 10" />
     <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
   </svg>
 );
 
 const ChevronDownIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <polyline points="6 9 12 15 18 9" />
   </svg>
 );
 
 const PlusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
 // ── area filter options ────────────────────────────────────────────────────────
-const AREA_OPTIONS = ["All Areas", "Main Hall", "Outdoor", "VIP", "Bar", "Terrace"];
+const AREA_OPTIONS = [
+  "All Areas",
+  "Main Hall",
+  "Outdoor",
+  "VIP",
+  "Bar",
+  "Terrace",
+];
 
 // ── helper: get display label for a record ───────────────────────────────────
 const getTableLabel = (record: TableQrCodeRecord): string => {
@@ -70,7 +119,9 @@ export default function QRCodeGeneration() {
   const [loading, setLoading] = useState(false);
   const [selectedArea, setSelectedArea] = useState("All Areas");
   const [areaDropdownOpen, setAreaDropdownOpen] = useState(false);
-  const [selectedTableIds, setSelectedTableIds] = useState<Set<number>>(new Set());
+  const [selectedTableIds, setSelectedTableIds] = useState<Set<number>>(
+    new Set(),
+  );
   const [selectAll, setSelectAll] = useState(false);
   const [previewTableId, setPreviewTableId] = useState<number | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -99,8 +150,9 @@ export default function QRCodeGeneration() {
       ? records
       : records.filter(
           (r) =>
-            (r as TableQrCodeRecord & { area_type?: string }).area_type?.toLowerCase() ===
-            selectedArea.toLowerCase(),
+            (
+              r as TableQrCodeRecord & { area_type?: string }
+            ).area_type?.toLowerCase() === selectedArea.toLowerCase(),
         );
 
   const toggleSelectAll = () => {
@@ -139,13 +191,17 @@ export default function QRCodeGeneration() {
       anchor.remove();
       URL.revokeObjectURL(objectUrl);
     } catch (error) {
-      toast.error("QR download failed", { description: parseApiError(error).message });
+      toast.error("QR download failed", {
+        description: parseApiError(error).message,
+      });
     }
   };
 
   const handleGenerateAndPreview = async () => {
     if (selectedTableIds.size === 0) {
-      toast.error("No tables selected", { description: "Please select at least one table." });
+      toast.error("No tables selected", {
+        description: "Please select at least one table.",
+      });
       return;
     }
     setGenerating(true);
@@ -166,22 +222,32 @@ export default function QRCodeGeneration() {
   return (
     <div
       className="flex flex-col max-h-[300] h-full"
-      style={{ backgroundColor: "#FFF8F6", fontFamily: "'DM Sans', sans-serif" }}
+      style={{
+        backgroundColor: "#FFF8F6",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
     >
       {/* ── Breadcrumb ── */}
       <div className="px-6 pt-5 pb-1">
         <p
           style={{
-            fontSize: 11,
+            fontSize: 12,
             color: "#b85c00",
             letterSpacing: "0.08em",
-            fontWeight: 600,
+            fontWeight: 500,
             textTransform: "uppercase",
           }}
         >
           SYSTEM / OPERATIONS
         </p>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: "#1a0a00", marginTop: 2 }}>
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: "#1a0a00",
+            marginTop: 2,
+          }}
+        >
           Generate QR Codes
         </h1>
       </div>
@@ -192,14 +258,12 @@ export default function QRCodeGeneration() {
         style={{ borderBottom: "2px solid #EA580C", backgroundColor: "#fff" }}
       >
         {/* Card header */}
-        <div
-          className="flex items-center justify-between px-5 py-3"
-        >
+        <div className="flex items-center justify-between px-5 py-3">
           <span
             style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: "0.02em",
               color: "#8F4D27",
               textTransform: "uppercase",
             }}
@@ -224,13 +288,22 @@ export default function QRCodeGeneration() {
           </button>
         </div>
 
-        <div className="max-w-305 mx-auto" style={{ borderBottom: "1px solid #f0d5c4" }}></div>
+        <div
+          className="max-w-305 mx-auto"
+          style={{ borderBottom: "1px solid #f0d5c4" }}
+        ></div>
 
         <div className="px-5 py-4 space-y-4">
           {/* ── Area Filter dropdown ── */}
           <div>
             <label
-              style={{ fontSize: 12, fontWeight: 600, color: "#7a3a00", display: "block", marginBottom: 6 }}
+              style={{
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#7a3a00",
+                display: "block",
+                marginBottom: 6,
+              }}
             >
               Area Filter
             </label>
@@ -272,7 +345,8 @@ export default function QRCodeGeneration() {
                       style={{
                         fontSize: 14,
                         color: area === selectedArea ? "#c85a00" : "#1a0a00",
-                        backgroundColor: area === selectedArea ? "#fff8f4" : "transparent",
+                        backgroundColor:
+                          area === selectedArea ? "#fff8f4" : "transparent",
                         border: "none",
                         cursor: "pointer",
                         fontWeight: area === selectedArea ? 600 : 400,
@@ -372,7 +446,9 @@ export default function QRCodeGeneration() {
                     style={{
                       padding: "10px 6px",
                       borderRadius: 3,
-                      border: isSelected ? "2px solid #F97316" : "1px solid #FDA77A",
+                      border: isSelected
+                        ? "2px solid #F97316"
+                        : "1px solid #FDA77A",
                       backgroundColor: isSelected ? "#F97316" : "#fff",
                       color: isSelected ? "#fff" : "#1a0a00",
                       fontSize: 13,
@@ -415,8 +491,13 @@ export default function QRCodeGeneration() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      const rec = records.find((r) => r.table_id === previewTableId);
-                      void downloadQr(previewTableId, rec ? getTableLabel(rec) : undefined);
+                      const rec = records.find(
+                        (r) => r.table_id === previewTableId,
+                      );
+                      void downloadQr(
+                        previewTableId,
+                        rec ? getTableLabel(rec) : undefined,
+                      );
                     }}
                     className="flex items-center gap-1 px-3 py-1"
                     style={{
@@ -496,7 +577,8 @@ export default function QRCodeGeneration() {
       </div>
 
       {/* ── Sticky footer actions ── */}
-      <div className="max-w-317 w-full mx-auto"
+      <div
+        className="max-w-317 w-full mx-auto"
         style={{
           position: "sticky",
           bottom: 0,
@@ -510,11 +592,12 @@ export default function QRCodeGeneration() {
           disabled={generating || selectedTableIds.size === 0}
           className="w-full max-w-317 mx-auto flex items-center justify-center gap-2 py-4"
           style={{
-            backgroundColor: selectedTableIds.size === 0 ? "#f5cbb0" : "#e85c00",
+            backgroundColor:
+              selectedTableIds.size === 0 ? "#f5cbb0" : "#f97316",
             color: "#fff",
             borderBottom: "4px solid #9A3412",
             fontSize: 13,
-            fontWeight: 700,
+            fontWeight: 500,
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             cursor: selectedTableIds.size === 0 ? "not-allowed" : "pointer",
@@ -535,7 +618,7 @@ export default function QRCodeGeneration() {
           className="w-full max-w-317 mt-3 mx-auto py-3"
           style={{
             backgroundColor: "#fff",
-            color: "#7a3a00",
+            color: "#f97316",
             border: "1px solid #FED7AA",
             fontSize: 12,
             fontWeight: 600,

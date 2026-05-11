@@ -141,51 +141,121 @@
 }
 
 @layer components {
-  .app-toast {
-    border: 1px solid #1f2632;
-    border-left: 5px solid #ff6b1a;
-    border-radius: 0;
-    background: #121621;
-    color: #f4f5f7;
-    box-shadow: 0 12px 28px rgba(10, 12, 18, 0.35);
-    min-height: 70px;
-    padding: 14px 16px;
+  /* ── Toast: dark-mode base ───────────────────────────── */
+  [data-sonner-toast].app-toast {
+    background: #0f1117 !important;
+    border: 1px solid #1e2636 !important;
+    border-left: 4px solid #ff6b1a !important;
+    border-radius: 8px !important;
+    color: #e8eaf0 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+    padding: 14px 16px !important;
+    gap: 10px !important;
+    font-family: inherit !important;
   }
 
-  .app-toast-title {
-    color: #ff8e45;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  /* ── per-type accent border colors ───────────────────── */
+  [data-sonner-toast].app-toast.app-toast-success {
+    border-left-color: #22c55e !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-error {
+    border-left-color: #ef4444 !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-warning {
+    border-left-color: #f59e0b !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-info {
+    border-left-color: #3b82f6 !important;
   }
 
-  .app-toast-description {
-    color: #f4f5f7;
-    font-size: 0.85rem;
-    margin-top: 2px;
+  /* ── title ───────────────────────────────────────────── */
+  [data-sonner-toast].app-toast [data-title] {
+    color: #ff9555 !important;
+    font-size: 0.7rem !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.09em !important;
+    text-transform: uppercase !important;
+    margin-left: 14px;
   }
-
   .app-toast-icon-wrap {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 1.4rem;
-    width: 1.4rem;
-    border-radius: 0.28rem;
+    height: 1.8rem;
+    width: 1.8rem;
+    flex-shrink: 0;
     background: #ff6b1a;
-    color: #121621;
+    color: black;
   }
 
-  .app-toast-close {
-    border: 0;
-    background: transparent;
-    color: #757d8a;
+  /* Success — green */
+  [data-sonner-toast].app-toast.app-toast-success {
+    border-left-color: #f97316 !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-success [data-title] {
+    color: #f97316 !important;
+  }
+  .app-toast-success .app-toast-icon-wrap { background: #f97316 !important; }
+
+  /* Error — red */
+  [data-sonner-toast].app-toast.app-toast-error {
+    border-left-color: #ef4444 !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-error [data-title] {
+    color: #f87171 !important;
+  }
+  .app-toast-error .app-toast-icon-wrap { background: #dc2626 !important; }
+
+  /* Warning — amber */
+  [data-sonner-toast].app-toast.app-toast-warning {
+    border-left-color: #f59e0b !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-warning [data-title] {
+    color: #fbbf24 !important;
+  }
+  .app-toast-warning .app-toast-icon-wrap { background: #d97706 !important; }
+
+  /* Info — blue */
+  [data-sonner-toast].app-toast.app-toast-info {
+    border-left-color: #3b82f6 !important;
+  }
+  [data-sonner-toast].app-toast.app-toast-info [data-title] {
+    color: #60a5fa !important;
+  }
+  .app-toast-info .app-toast-icon-wrap { background: #2563eb !important; }
+
+  /* ── description ─────────────────────────────────────── */
+  [data-sonner-toast].app-toast [data-description] {
+    color: #b0b8cc !important;
+    font-size: 0.750rem !important;
+    margin-top: 1.5px !important;
+    line-height: 1.5 !important;
+    margin-left: 14px;
   }
 
-  .app-toast-close:hover {
-    color: #c8ccd5;
-    background: transparent;
+  /* ── close button — base ─────────────────────────────── */
+  [data-sonner-toast].app-toast [data-close-button] {
+    background: #0f1117 !important;
+    border: 1px solid #0f1117 !important;
+    color: #b0b8cc !important;
+    border-radius: 5px !important;
+    top: 30px !important;
+    left: unset !important;
+    right: 8px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.15s, color 0.15s !important;
+  }
+  [data-sonner-toast].app-toast [data-close-button] svg {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  [data-sonner-toast].app-toast [data-close-button]:hover {
+    /* background: #ff6b1a !important; */
+    color: #fff !important;
   }
 
   .dish-management-page {

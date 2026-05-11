@@ -33,7 +33,10 @@ function FormField({
 }) {
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label htmlFor={id} className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+      <Label
+        htmlFor={id}
+        className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400"
+      >
         {label}
       </Label>
       <Input
@@ -41,7 +44,7 @@ function FormField({
         {...props}
         className={cn(
           "h-10 border border-zinc-200 bg-zinc-50 text-sm text-zinc-800 px-3 placeholder:text-zinc-300 focus-visible:ring-1 focus-visible:ring-[#CC543A] focus-visible:border-[#CC543A] disabled:opacity-60 disabled:cursor-not-allowed transition",
-          error && "border-red-400 focus-visible:ring-red-400"
+          error && "border-red-400 focus-visible:ring-red-400",
         )}
       />
       {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}
@@ -146,7 +149,9 @@ export default function AccountDetailsPage() {
         </div>
         <div>
           <p className="text-sm font-semibold text-zinc-800">Profile Details</p>
-          <p className="text-xs text-zinc-400">Keep your account information polished and up to date.</p>
+          <p className="text-xs text-zinc-400">
+            Keep your account information polished and up to date.
+          </p>
         </div>
       </div>
 

@@ -54,7 +54,7 @@ type ScreenMode = "list" | "editor";
 type EditorMode = "create" | "edit";
 type AvailabilityViewFilter = "all" | "available" | "occupied" | "service";
 type AvailabilityStateChoice = "available" | "occupied" | "service";
-type EditorAvailabilityChoice = "available" | "occupied";
+type EditorAvailabilityChoice = "available" | "occupied" | "service";
 
 type TableForm = {
   table_number: string;
@@ -115,9 +115,9 @@ const statusBadgeClass = (status?: StatusFlag) =>
     : "border border-[#E0C0B1] text-[#94A3B8]";
 
 const orangeButtonClass =
-  "h-10 rounded-none border border-[#f36c21] bg-[#f36c21] px-4 text-xs uppercase tracking-[0.07em] text-white hover:bg-[#de5b15]";
+  "h-10.5 rounded-none border border-[#9a3412] bg-[#f97316] px-4 text-xs uppercase tracking-[0.07em] text-white hover:bg-[#de5b15]";
 const neutralButtonClass =
-  "h-10 rounded-none border border-[#e8ccb3] bg-white px-4 text-xs uppercase tracking-[0.07em] text-[#6f5d4f] hover:bg-[#f8ede2]";
+  "h-10.5 rounded-none border border-[#e8ccb3] bg-white px-4 text-xs uppercase tracking-[0.07em] text-[#6f5d4f] hover:bg-[#f8ede2]";
 
 export default function TableManagement() {
   const navigate = useNavigate();
@@ -394,13 +394,13 @@ export default function TableManagement() {
   );
 
   const renderListScreen = () => (
-    <section className="space-y-4">
+    <section className="space-y-4 bg-[#fff8f6] p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-sm font-semibold uppercase tracking-[0.08em] text-[#403127]">
+          <h1 className="text-[15px] font-medium uppercase tracking-[0.08em] text-[#403127]">
             Table Management
           </h1>
-          <p className="text-sm text-[#75675d]">Configure and monitor floor layout in real-time.</p>
+          <p className="text-[14px] tracking-[0.06em] text-[#75675d]">Configure and monitor floor layout in real-time.</p>
         </div>
         <Button type="button" className={orangeButtonClass} onClick={openCreateScreen}>
           <RiAddLine className="size-4" />
@@ -408,14 +408,14 @@ export default function TableManagement() {
         </Button>
       </div>
 
-      <div className="border border-[#efcfb2] bg-[#fcf7f2] p-4">
+      <div className="border border-[#efcfb2] bg-white p-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_200px_200px_auto]">
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-[#6f5f53]">Quick Search</p>
+            <p className="text-[15px] font-medium text-[#6f5f53]">Quick Search</p>
             <div className="relative">
               <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#a99280]" />
               <Input
-                className="h-10 border-[#e8cab0] bg-white pl-9 text-sm"
+                className="h-10.5 border-[#e8cab0] bg-white pl-9 text-sm"
                 placeholder="Search by number or area..."
                 value={search}
                 onChange={(event) => {
@@ -427,7 +427,7 @@ export default function TableManagement() {
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-[#6f5f53]">Area Type</p>
+            <p className="text-[15px] font-medium text-[#6f5f53]">Area Type</p>
             <Select
               value={areaFilter}
               onValueChange={(value) => {
@@ -435,7 +435,7 @@ export default function TableManagement() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-10 border-[#e8cab0] bg-white text-sm">
+              <SelectTrigger className="h-10 py-5 border-[#e8cab0] bg-white text-sm">
                 <SelectValue placeholder="All Areas" />
               </SelectTrigger>
               <SelectContent>
@@ -449,8 +449,8 @@ export default function TableManagement() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-[#6f5f53]">Availability</p>
+          <div className="space-y-1.5 ">
+            <p className="text-[15px] font-medium text-[#6f5f53]">Availability</p>
             <Select
               value={availabilityFilter}
               onValueChange={(value: AvailabilityViewFilter) => {
@@ -458,7 +458,7 @@ export default function TableManagement() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-10 border-[#e8cab0] bg-white text-sm">
+              <SelectTrigger className="h-10 py-5 border-[#e8cab0] bg-white text-sm">
                 <SelectValue placeholder="Any Status" />
               </SelectTrigger>
               <SelectContent>
@@ -478,22 +478,22 @@ export default function TableManagement() {
         </div>
       </div>
 
-      <div className="border border-[#efcfb2] bg-white p-2">
+      <div className="border border-[#efcfb2] bg-white">
         <Table>
           <TableHeader className="bg-[#f8efe7] text-[#5b4e45]">
             <TableRow>
-              <TableHead className="w-8">
+              <TableHead className="w-8 font-bold">
                 <Checkbox />
               </TableHead>
-              <TableHead>Table Number</TableHead>
-              <TableHead>Capacity</TableHead>
-              <TableHead>Area Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Availability</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-[#7c2d12]">Table Number</TableHead>
+              <TableHead className="text-[#7c2d12]">Capacity</TableHead>
+              <TableHead className="text-[#7c2d12]">Area Type</TableHead>
+              <TableHead className="text-[#7c2d12]">Status</TableHead>
+              <TableHead className="text-[#7c2d12]">Availability</TableHead>
+              <TableHead className="text-[#7c2d12] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="border border-[#efcfb2]">
             {loading ? (
               <TableRow>
                 <TableCell colSpan={7}>
@@ -510,13 +510,13 @@ export default function TableManagement() {
               paginatedTables.map((table) => {
                 const availabilityState = getAvailabilityState(table);
                 return (
-                  <TableRow key={table.table_id} className="border-b border-[#f2e4d7] hover:bg-[#fff8f1]">
+                  <TableRow key={table.table_id} className="border-b border-[#f2e4d7] ">
                     <TableCell>
                       <Checkbox />
                     </TableCell>
                     <TableCell className="font-medium text-[#3d312a]">{table.table_number}</TableCell>
                     <TableCell>
-                      <span className="inline-flex min-w-8 justify-center bg-[#f2ddd0] px-1.5 text-xs font-semibold text-[#6d5d53]">
+                      <span className="inline-flex min-w-8 justify-center bg-[#f2ddd0] px-1.5 py-1 text-xs font-semibold text-[#6d5d53]">
                         {String(table.capacity).padStart(2, "0")}
                       </span>
                     </TableCell>
@@ -535,21 +535,21 @@ export default function TableManagement() {
                           type="button"
                           variant="ghost"
                           size="xs"
-                          className="h-7 rounded-none px-2 text-[10px] uppercase tracking-[0.06em] text-[#66574b] hover:bg-[#fff2e6]"
+                          className="h-7 rounded-none px-2 text-[11px] uppercase tracking-[0.06em] text-[#66574b] hover:bg-[#fff2e6]"
                           onClick={() => setQrPreviewTable(table)}
                         >
-                          <RiQrCodeLine className="size-3.5" /> View QR
+                          <RiQrCodeLine className="size-4" /> View QR
                         </Button>
                         <Button
                           type="button"
                           variant="ghost"
                           size="xs"
-                          className="h-7 rounded-none px-2 text-[10px] uppercase tracking-[0.06em] text-[#66574b] hover:bg-[#fff2e6]"
+                          className="h-7 rounded-none px-2 text-[11px] uppercase tracking-[0.06em] text-[#66574b] hover:bg-[#fff2e6]"
                           onClick={() => {
                             void openEditScreen(table);
                           }}
                         >
-                          <RiEdit2Line className="size-3.5" /> Edit
+                          <RiEdit2Line className="size-4" /> Edit
                         </Button>
                       </div>
                     </TableCell>
@@ -560,7 +560,7 @@ export default function TableManagement() {
           </TableBody>
         </Table>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 px-2 text-sm text-[#74665b]">
+        <div className="py-3.5 bg-[#fff1eb] flex flex-wrap items-center justify-between gap-3 px-2 text-[15px] text-[#74665b]">
           <p>
             Showing {paginatedTables.length} of {filteredTables.length} tables
           </p>
@@ -584,7 +584,7 @@ export default function TableManagement() {
                   type="button"
                   size="icon-xs"
                   className={`rounded-none border ${active
-                      ? "border-[#f36c21] bg-[#f36c21] text-white"
+                      ? "border-[#f36c21] bg-[#f36c21] text-white p-4"
                       : "border-[#e8cab0] bg-white text-[#695a4e] hover:bg-[#f8ede2]"
                     }`}
                   onClick={() => setPage(pageNumber)}
@@ -608,33 +608,33 @@ export default function TableManagement() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.07em] text-[#847264]">Total Capacity</p>
-          <p className="mt-1 text-xl font-semibold text-[#cf5f1e]">{totalCapacity} Seats</p>
+        <div className="border border-[#efd1b4] bg-white p-4">
+          <p className="text-[14px] uppercase tracking-[0.07em] text-[#847264]">Total Capacity</p>
+          <p className="mt-1 text-[16px] font-semibold uppercase text-[#cf5f1e]">{totalCapacity} Seats</p>
         </div>
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.07em] text-[#847264]">Active Tables</p>
-          <p className="mt-1 text-xl font-semibold text-[#cf5f1e]">{activeTableCount} / {tables.length}</p>
+        <div className="border border-[#efd1b4] bg-white p-4">
+          <p className="text-[14px] uppercase tracking-[0.07em] text-[#847264]">Active Tables</p>
+          <p className="mt-1 text-[16px] font-semibold uppercase text-[#cf5f1e]">{activeTableCount} / {tables.length}</p>
         </div>
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.07em] text-[#847264]">Current Occupancy</p>
-          <p className="mt-1 text-xl font-semibold text-[#cf5f1e]">{occupancyPercent}%</p>
+        <div className="border border-[#efd1b4] bg-white p-4">
+          <p className="text-[14px] uppercase tracking-[0.07em] text-[#847264]">Current Occupancy</p>
+          <p className="mt-1 text-[16px] font-semibold uppercase text-[#cf5f1e]">{occupancyPercent}%</p>
         </div>
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.07em] text-[#847264]">QR Ready Tables</p>
-          <p className="mt-1 text-xl font-semibold text-[#cf5f1e]">{qrReadyCount}</p>
+        <div className="border border-[#efd1b4] bg-white p-4">
+          <p className="text-[14px] uppercase tracking-[0.07em] text-[#847264]">QR Ready Tables</p>
+          <p className="mt-1 text-[16px] font-semibold uppercase text-[#cf5f1e]">{qrReadyCount}</p>
         </div>
       </div>
     </section>
   );
 
   const renderEditorScreen = () => (
-    <section className="mx-auto w-full max-w-245 space-y-4">
-      <div className="space-y-0.5">
-        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#c56524]">
+    <section className="mx-auto w-full max-w-245 space-y-4 bg-[#fff8f6] p-6">
+      <div className="space-y-0.5 ml-28">
+        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#c56524]">
           <button
             type="button"
-            className="hover:text-[#a65012]"
+            className="hover:text-[#a65012] uppercase"
             onClick={() => redirectToTableList()}
           >
             Table Management
@@ -642,16 +642,16 @@ export default function TableManagement() {
           <span>/</span>
           <span>{editorMode === "edit" ? "Edit" : "Create"}</span>
         </div>
-        <h2 className="text-4 font-semibold text-[#2e241d]">
+        <h2 className="text-[26px] font-semibold text-[#2e241d]">
           {editorMode === "edit" ? "Edit Table" : "Add New Table"}
         </h2>
       </div>
 
-      <div className="mx-auto w-full max-w-190 border border-[#efcfb2] bg-[#fcf7f2] p-4">
+      <div className="mx-auto w-full max-w-190 border border-[#efcfb2] text-[13px] tracking-[0.06em] text-[#584237] uppercase bg-white p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Table Number"
-            className="h-10 border-[#e8cab0] bg-white text-sm"
+            className="h-10 border-[#e8cab0] bg-white"
             placeholder="T-04"
             value={form.table_number}
             onChange={(event) => setForm((prev) => ({ ...prev, table_number: event.target.value }))}
@@ -661,21 +661,21 @@ export default function TableManagement() {
             label="Seating Capacity"
             type="number"
             min={1}
-            className="h-10 border-[#e8cab0] bg-white text-sm"
+            className="h-10 border-[#e8cab0] bg-white"
             value={form.capacity}
             onChange={(event) => setForm((prev) => ({ ...prev, capacity: event.target.value }))}
             disabled={saving}
           />
         </div>
 
-        <div className="mt-3 space-y-1.5">
+        <div className="mt-8 space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-[0.07em] text-[#5d4f45]">Area Type</p>
           <Select
             value={form.area_type}
             onValueChange={(value) => setForm((prev) => ({ ...prev, area_type: value }))}
             disabled={saving}
           >
-            <SelectTrigger className="h-10 border-[#e8cab0] bg-white text-sm">
+            <SelectTrigger className="h-10 border-[#e8cab0] py-5 bg-white text-sm">
               <SelectValue placeholder="Select area type" />
             </SelectTrigger>
             <SelectContent>
@@ -694,8 +694,8 @@ export default function TableManagement() {
               <RiBuilding4Line className="size-5" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#bf5e1f]">Table {form.table_number || "—"}</p>
-              <p className="text-xs text-[#7a6a5e]">
+              <p className="text-[15px] font-semibold text-[#bf5e1f] capitalize">Table {form.table_number || "—"}</p>
+              <p className="text-[13px] text-[#7a6a5e] capitalize">
                 Located in {getAreaLabel(form.area_type)} • Capacity: {form.capacity || "0"}
               </p>
             </div>
@@ -705,10 +705,10 @@ export default function TableManagement() {
         <div className="mt-4 border-t border-[#efd9c6] pt-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#5d4f45]">
+              <p className="text-[14px] font-bold uppercase tracking-[0.08em] text-[#5d4f45]">
                 Operational Status
               </p>
-              <p className="text-xs text-[#8a7a6d]">Active tables can receive bookings</p>
+              <p className="text-[13px] mt-1 capitalize text-[#8a7a6d]">Active tables can receive bookings</p>
             </div>
             <Switch
               checked={form.status === 1}
@@ -815,10 +815,10 @@ export default function TableManagement() {
       {screenMode === "list" ? renderListScreen() : renderEditorScreen()}
 
       <Dialog open={Boolean(qrPreviewTable)} onOpenChange={(open) => !open && setQrPreviewTable(null)}>
-        <DialogContent className="gap-0 w-99.5 overflow-hidden rounded-none border-[#efcfb2] p-0">
+        <DialogContent className="gap-0 w-99.5 overflow-hidden rounded-none border-2 border-[#9D4300] p-0">
           {/* Orange header bar */}
-          <DialogHeader className="flex flex-row items-center justify-between bg-[#F97316] px-4 py-0 h-11 space-y-0">
-            <DialogTitle className="text-[11px] font-semibold uppercase tracking-widest text-white">
+          <DialogHeader className="flex flex-row items-center justify-between bg-[#F97316] px-4 py-0 h-11 space-y-0 border-b border-[#9D4300]">
+            <DialogTitle className="text-[14px] font-light uppercase tracking-widest text-white ">
               Preview QR Code
             </DialogTitle>
           </DialogHeader>
@@ -828,8 +828,8 @@ export default function TableManagement() {
               <div className="px-6 pt-6 pb-0 space-y-4">
                 {/* Table label */}
                 <div className="text-center space-y-1">
-                  <p className="text-[10px] uppercase tracking-widest text-[#9a8b7f]">Currently viewing</p>
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-[#9D4300]">
+                  <p className="text-[13px] uppercase tracking-widest text-[#9a8b7f]">Currently viewing</p>
+                  <p className="text-[13px] font-medium uppercase tracking-[0.06em] text-[#9D4300]">
                     Table {qrPreviewTable.table_number}
                   </p>
                 </div>
@@ -846,13 +846,13 @@ export default function TableManagement() {
                     <img
                       src={getTableQrImageUrl(qrPreviewTable.table_id)}
                       alt={`Table ${qrPreviewTable.table_number} QR`}
-                      className="w-48 h-48 object-contain"
+                      className="w-40 h-50 object-contain"
                     />
                   </div>
                 </div>
 
                 {/* Direct link */}
-                <p className="text-xs text-[#584237] text-center leading-relaxed">
+                <p className="text-[14px] text-[#584237] text-center leading-relaxed">
                   "Direct link to:<br />
                   menu.scanorderdone.com/table/{String(qrPreviewTable.table_number).toLowerCase()}"
                 </p>
@@ -860,7 +860,7 @@ export default function TableManagement() {
                 {/* Full-width download button */}
                 <button
                   type="button"
-                  className="w-full cursor-pointer h-11 bg-[#F97316] text-white text-[11px] font-semibold uppercase tracking-[0.1em] flex items-center justify-center gap-2 transition-colors"
+                  className="w-full cursor-pointer h-11 bg-[#F97316] text-white text-[14px] font-light uppercase tracking-[0.1em] flex items-center justify-center gap-2 transition-colors my-4"
                   onClick={() => { void downloadQr(qrPreviewTable); }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -874,8 +874,8 @@ export default function TableManagement() {
 
               {/* Footer with format info */}
               <div className="flex justify-between border-t bg-[#FFF1EB] border-[#E0C0B1] px-4 py-2.5 mt-3">
-                <span className="text-[10px] uppercase tracking-[0.07em] text-[#9a8b7f]">Format: 2048 × 2048 px</span>
-                <span className="text-[10px] uppercase tracking-[0.07em] text-[#9a8b7f]">ECC: Level H</span>
+                <span className="text-[12px] uppercase tracking-[0.07em] text-[#584237]">Format: 2048 × 2048 px</span>
+                <span className="text-[12px] uppercase tracking-[0.07em] text-[#584237]">ECC: Level H</span>
               </div>
             </>
           )}

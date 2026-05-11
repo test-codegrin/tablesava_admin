@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  RiAddLine,
-  RiDeleteBinLine,
-  RiEdit2Line,
-} from "@remixicon/react";
+import { RiAddLine, RiDeleteBinLine, RiEdit2Line } from "@remixicon/react";
 import { parseApiError } from "@/api/apiClient";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,10 +14,7 @@ import {
 } from "@/components/ui/table";
 import type { Category, StatusFlag } from "@/types/admin";
 import Loader from "@/pages/Loader";
-import {
-  deleteCategoryApi,
-  getCategoriesApi,
-} from "@/api/categoryApi";
+import { deleteCategoryApi, getCategoriesApi } from "@/api/categoryApi";
 import {
   filterCategoriesLocally,
   paginateCategories,
@@ -29,7 +22,8 @@ import {
 
 const PAGE_SIZE = 8;
 
-const statusLabel = (status: StatusFlag) => (status === 1 ? "Active" : "Inactive");
+const statusLabel = (status: StatusFlag) =>
+  status === 1 ? "Active" : "Inactive";
 
 export default function DishManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -95,7 +89,7 @@ export default function DishManagement() {
   };
 
   return (
-    <div className="dish-management-page space-y-6 text-[#3a3b3f]">
+    <div className="dish-management-page space-y-6 text-[#3a3b3f] bg-[#fff8f6] p-6">
       {/* Breadcrumb */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
@@ -109,17 +103,17 @@ export default function DishManagement() {
       {/* Page header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold uppercase tracking-[0.08em] text-[#323238]">
+          <h1 className="text-[16px] font-medium uppercase tracking-[0.08em] text-[#323238]">
             Categories
           </h1>
-          <p className="text-sm text-zinc-500">
-            Manage your kitchen taxonomy and menu structure.
+          <p className="text-[12px] text-zinc-500 uppercase tracking-[0.2em] mt-1">
+            Master menu classification system
           </p>
         </div>
         <Button
           type="button"
           onClick={handleAddNew}
-          className="h-11 rounded-none border border-[#ff6b1a] bg-[#ff6b1a] px-6 text-sm uppercase tracking-[0.07em] text-white shadow-[0_2px_0_0_#9f4510] hover:bg-[#ed5f15]"
+          className="h-11 rounded-none border border-[#ff6b1a] bg-[#f97316] px-6 text-sm font-light tracking-[0.07em] text-white shadow-[0_2px_0_0_#9f4510] hover:bg-[#ed5f15] cursor-pointer"
         >
           <RiAddLine className="size-4" />
           Add Category
@@ -128,73 +122,89 @@ export default function DishManagement() {
 
       {/* Filter bar */}
       <div className="space-y-3">
-        <div className="flex flex-wrap items-end gap-3 border border-[#efcfb2] bg-white p-4">
-          <div className="min-w-60 flex-1 space-y-1">
-            <label
-              htmlFor="category-search"
-              className="text-sm font-semibold text-zinc-700"
+        <div className="flex flex-wrap items-center gap-4 border border-[#efcfb2] bg-[#fffdfb] p-3">
+          {/* Search */}
+          <div className="relative min-w-[320px] flex-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#b8aca0]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
             >
-              Search
-            </label>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+
             <input
               id="category-search"
-              className="h-11 w-full border border-[#e6bb95] bg-white px-3 text-sm outline-none transition focus:border-[#ff6b1a] focus:ring-1 focus:ring-[#ff6b1a]/40"
-              placeholder="Search by name or description"
+              placeholder="SEARCH CATEGORIES..."
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setPage(1);
               }}
+              className="h-11 w-full border border-[#efcfb2] bg-white pl-12 pr-4 text-[14px] uppercase tracking-[0.06em] text-[#5b5147] outline-none placeholder:text-[#c2b8ae] focus:border-[#ff6b1a]"
             />
           </div>
 
-          <div className="min-w-48 space-y-1">
-            <label
-              htmlFor="statusFilter"
-              className="text-sm font-semibold text-zinc-700"
-            >
-              Status Filter
-            </label>
+          {/* Filter Label */}
+          <p className="text-xs uppercase tracking-[0.08em] text-[#b3a79a]">
+            Filter By Status
+          </p>
+
+          {/* Select */}
+          <div className="min-w-[180px]">
             <select
               id="statusFilter"
-              className="h-11 w-full border border-[#e6bb95] bg-white px-3 text-sm outline-none transition focus:border-[#ff6b1a] focus:ring-1 focus:ring-[#ff6b1a]/40"
               value={String(statusFilter)}
               onChange={(event) => {
                 const value = event.target.value;
+
                 setStatusFilter(
                   value === "all" ? "all" : Number(value) === 1 ? 1 : 0,
                 );
+
                 setPage(1);
               }}
+              className="h-11 w-full border border-[#efcfb2] bg-white px-4 text-[14px] uppercase tracking-[0.06em] text-[#5b5147] outline-none cursor-pointer focus:border-[#ff6b1a]"
             >
-              <option value="all">All</option>
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
+              <option value="all">ALL STATUSES</option>
+              <option value="1">ACTIVE</option>
+              <option value="0">INACTIVE</option>
+
             </select>
           </div>
 
+          {/* Refresh Button */}
           <Button
             type="button"
             variant="outline"
             onClick={() => void loadCategories()}
             disabled={loading}
-            className="h-11 rounded-none border-[#e6bb95] px-6 text-sm uppercase tracking-[0.06em] hover:bg-[#f3ece6]"
+            className="h-11 rounded-none border-[#e6bb95] px-6 text-sm uppercase tracking-[0.06em] hover:bg-[#f3ece6] cursor-pointer"
           >
             {loading ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
 
         {/* Table */}
-        <div className="border border-[#efcfb2] bg-white p-2">
+        <div className="border border-[#feddbc] bg-white">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-[#fff7ed] font-bold">
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Item Count</TableHead>
-                <TableHead>Created Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-[#7c2d12]">ID</TableHead>
+                <TableHead className="text-[#7c2d12]">Name</TableHead>
+                <TableHead className="text-[#7c2d12]">Status</TableHead>
+                <TableHead className="text-[#7c2d12]">Item Count</TableHead>
+                <TableHead className="text-[#7c2d12]">Created Date</TableHead>
+                <TableHead className="text-[#7c2d12] text-right">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -209,10 +219,7 @@ export default function DishManagement() {
                 </TableRow>
               ) : paginated.items.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-zinc-500"
-                  >
+                  <TableCell colSpan={6} className="text-center text-zinc-500">
                     No categories found.
                   </TableCell>
                 </TableRow>
@@ -226,8 +233,8 @@ export default function DishManagement() {
                         variant="outline"
                         className={`rounded-none ${
                           category.status === 1
-                            ? "border border-[#EA580C] text-[#EA580C]"
-                            : "border-[#D4D4D8] text-[#A1A1AA]"
+                            ? "border border-[#EA580C] text-[#EA580C] uppercase text-[12px]"
+                            : "border-[#D4D4D8] text-[#A1A1AA] uppercase text-[12px]"
                         }`}
                       >
                         {statusLabel(category.status)}
@@ -241,7 +248,7 @@ export default function DishManagement() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          className="rounded-none border-[#f1c8a8] px-2.5 text-[#d15a15] hover:bg-[#fff1e5]"
+                          className="rounded-none border-[#f1c8a8] px-2.5 text-[#d15a15] hover:bg-[#fff1e5] cursor-pointer"
                           onClick={() => handleEdit(category.categories_id)}
                         >
                           <RiEdit2Line className="size-4" />
@@ -251,10 +258,8 @@ export default function DishManagement() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          className="rounded-none border-[#f1c8a8] px-2.5 text-[#b8472f] hover:bg-[#fff1e5]"
-                          onClick={() =>
-                            void onDelete(category.categories_id)
-                          }
+                          className="rounded-none border-[#f1c8a8] px-2.5 text-[#b8472f] hover:bg-[#fff1e5] cursor-pointer"
+                          onClick={() => void onDelete(category.categories_id)}
                         >
                           <RiDeleteBinLine className="size-4" />
                           Delete
@@ -279,7 +284,7 @@ export default function DishManagement() {
             type="button"
             size="sm"
             variant="outline"
-            className="rounded-none border-[#e6bb95] hover:bg-[#f3ece6]"
+            className="rounded-none border-[#e6bb95] hover:bg-[#f3ece6] cursor-pointer"
             disabled={page <= 1}
             onClick={() => setPage((prev) => Math.max(1, prev - 1))}
           >
@@ -292,7 +297,7 @@ export default function DishManagement() {
             type="button"
             size="sm"
             variant="outline"
-            className="rounded-none border-[#e6bb95] hover:bg-[#f3ece6]"
+            className="rounded-none border-[#e6bb95] hover:bg-[#f3ece6] cursor-pointer"
             disabled={page >= totalPages}
             onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
           >

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -44,7 +45,13 @@ import {
   patchItemStatus,
   updateItem,
 } from "@/services/itemService";
-import type { Category, Item, ItemOption, ItemOptionGroup, StatusFlag } from "@/types/admin";
+import type {
+  Category,
+  Item,
+  ItemOption,
+  ItemOptionGroup,
+  StatusFlag,
+} from "@/types/admin";
 
 type ScreenMode = "list" | "create" | "edit";
 
@@ -72,7 +79,8 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 // ─── Photo URL helper ────────────────────────────────────────────────────────
 // If the stored URL already contains a host (http/https) we use it as-is.
 // Otherwise we prepend the API base so relative paths work too.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 
 const resolvePhotoUrl = (url: string | null | undefined): string | null => {
   if (!url) return null;
@@ -117,24 +125,24 @@ const toFormFromItem = (item: Item): ItemForm => {
     price: String(item.price),
     status: item.status,
     photo: null,
-    existing_photo_url: item.photo_url ?? null,   // keep original value; resolvePhotoUrl used at render time
+    existing_photo_url: item.photo_url ?? null, // keep original value; resolvePhotoUrl used at render time
     option_groups:
       optionGroups.length > 0
         ? optionGroups.map((group) => ({
-          group_id: group.group_id,
-          name: group.name,
-          multiple_select: group.multiple_select,
-          is_required: group.is_required,
-          status: group.status ?? 1,
-          is_deleted: false,
-          options: group.options.map((option) => ({
-            option_id: option.option_id,
-            name: option.name,
-            price_delta: option.price_delta,
-            status: 1,
+            group_id: group.group_id,
+            name: group.name,
+            multiple_select: group.multiple_select,
+            is_required: group.is_required,
+            status: group.status ?? 1,
             is_deleted: false,
-          })),
-        }))
+            options: group.options.map((option) => ({
+              option_id: option.option_id,
+              name: option.name,
+              price_delta: option.price_delta,
+              status: 1,
+              is_deleted: false,
+            })),
+          }))
         : [emptyOptionGroup()],
   };
 };
@@ -165,7 +173,8 @@ const serializeForm = (form: ItemForm) =>
     })),
   });
 
-const statusLabel = (status: StatusFlag) => (status === 1 ? "ACTIVE" : "OUT OF STOCK");
+const statusLabel = (status: StatusFlag) =>
+  status === 1 ? "ACTIVE" : "OUT OF STOCK";
 
 const asCurrency = (value: number) => `$${value.toFixed(2)}`;
 
@@ -199,20 +208,29 @@ export default function ItemName() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [editing, setEditing] = useState<Item | null>(null);
   const [form, setForm] = useState<ItemForm>(createInitialForm());
-  const [formBaseline, setFormBaseline] = useState(serializeForm(createInitialForm()));
+  const [formBaseline, setFormBaseline] = useState(
+    serializeForm(createInitialForm()),
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | StatusFlag>("all");
   const [categoryFilter, setCategoryFilter] = useState<"all" | number>("all");
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
   const [page, setPage] = useState(1);
-  const [selectedPhotoPreviewUrl, setSelectedPhotoPreviewUrl] = useState<string | null>(null);
-  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<Set<string>>(new Set());
+  const [selectedPhotoPreviewUrl, setSelectedPhotoPreviewUrl] = useState<
+    string | null
+  >(null);
+  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<Set<string>>(
+    new Set(),
+  );
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [categoryResponse, itemResponse] = await Promise.all([getCategories(), getItems()]);
+      const [categoryResponse, itemResponse] = await Promise.all([
+        getCategories(),
+        getItems(),
+      ]);
       setCategories(categoryResponse.categories);
       setItems(itemResponse.items);
     } catch (error) {
@@ -253,7 +271,9 @@ export default function ItemName() {
     () =>
       categoryFilter === "all"
         ? filteredBySearchAndStatus
-        : filteredBySearchAndStatus.filter((item) => item.categories_id === categoryFilter),
+        : filteredBySearchAndStatus.filter(
+            (item) => item.categories_id === categoryFilter,
+          ),
     [categoryFilter, filteredBySearchAndStatus],
   );
 
@@ -271,8 +291,12 @@ export default function ItemName() {
   }, [page, totalPages]);
 
   const activeItems = items.filter((item) => item.status === 1).length;
-  const menuHealthScore = items.length === 0 ? 0 : Math.round((activeItems / items.length) * 100);
-  const formIsDirty = useMemo(() => serializeForm(form) !== formBaseline, [form, formBaseline]);
+  const menuHealthScore =
+    items.length === 0 ? 0 : Math.round((activeItems / items.length) * 100);
+  const formIsDirty = useMemo(
+    () => serializeForm(form) !== formBaseline,
+    [form, formBaseline],
+  );
 
   const visibleGroups = useMemo(
     () => form.option_groups.filter((group) => !group.is_deleted),
@@ -284,7 +308,8 @@ export default function ItemName() {
     selectedPhotoPreviewUrl || resolvePhotoUrl(form.existing_photo_url) || null;
 
   const getCategoryName = (categoryId: number) =>
-    categories.find((category) => category.categories_id === categoryId)?.name || "-";
+    categories.find((category) => category.categories_id === categoryId)
+      ?.name || "-";
 
   const openCreateScreen = () => {
     const next = createInitialForm();
@@ -308,7 +333,9 @@ export default function ItemName() {
 
     try {
       const response = await getCategoryItems(item.categories_id);
-      const detailedItem = response.items.find((entry) => entry.item_id === item.item_id);
+      const detailedItem = response.items.find(
+        (entry) => entry.item_id === item.item_id,
+      );
       if (detailedItem) {
         const detailedForm = toFormFromItem(detailedItem);
         setEditing(detailedItem);
@@ -325,7 +352,11 @@ export default function ItemName() {
   };
 
   const backToList = () => {
-    if ((screenMode === "create" || screenMode === "edit") && formIsDirty && !saving) {
+    if (
+      (screenMode === "create" || screenMode === "edit") &&
+      formIsDirty &&
+      !saving
+    ) {
       const shouldDiscard = window.confirm("Discard unsaved item changes?");
       if (!shouldDiscard) {
         return;
@@ -357,7 +388,9 @@ export default function ItemName() {
   ) => {
     updateGroup(groupIndex, (group) => ({
       ...group,
-      options: group.options.map((option, index) => (index === optionIndex ? updater(option) : option)),
+      options: group.options.map((option, index) =>
+        index === optionIndex ? updater(option) : option,
+      ),
     }));
   };
 
@@ -379,7 +412,9 @@ export default function ItemName() {
 
       return {
         ...prev,
-        option_groups: prev.option_groups.filter((_, index) => index !== groupIndex),
+        option_groups: prev.option_groups.filter(
+          (_, index) => index !== groupIndex,
+        ),
       };
     });
   };
@@ -433,24 +468,34 @@ export default function ItemName() {
       throw new Error("Price must be a valid non-negative number.");
     }
 
-    const nonDeletedGroups = form.option_groups.filter((group) => !group.is_deleted);
+    const nonDeletedGroups = form.option_groups.filter(
+      (group) => !group.is_deleted,
+    );
     if (nonDeletedGroups.length === 0) {
       throw new Error("At least one customization group is required.");
     }
 
     nonDeletedGroups.forEach((group, groupIdx) => {
       if (!group.name.trim()) {
-        throw new Error(`Customization group ${groupIdx + 1} name is required.`);
+        throw new Error(
+          `Customization group ${groupIdx + 1} name is required.`,
+        );
       }
 
-      const nonDeletedOptions = group.options.filter((option) => !option.is_deleted);
+      const nonDeletedOptions = group.options.filter(
+        (option) => !option.is_deleted,
+      );
       if (nonDeletedOptions.length === 0) {
-        throw new Error(`Customization group ${groupIdx + 1} must contain at least one choice.`);
+        throw new Error(
+          `Customization group ${groupIdx + 1} must contain at least one choice.`,
+        );
       }
 
       nonDeletedOptions.forEach((option, optionIdx) => {
         if (!option.name.trim()) {
-          throw new Error(`Choice ${optionIdx + 1} in group ${groupIdx + 1} must have a name.`);
+          throw new Error(
+            `Choice ${optionIdx + 1} in group ${groupIdx + 1} must have a name.`,
+          );
         }
       });
     });
@@ -539,108 +584,162 @@ export default function ItemName() {
   };
 
   const renderListScreen = () => (
-    <section className="space-y-5">
+    <section className="space-y-5 bg-[#fff8f6] p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold uppercase tracking-[0.06em] text-[#2f261f]">Menu Items</h1>
-          <p className="text-sm text-[#7b6b60]">Manage your digital menu, pricing, and availability states.</p>
+          <h1 className="text-2xl font-bold uppercase tracking-[0.05em] text-[#2f261f]">
+            Menu Items
+          </h1>
+          <p className="text-[14px] text-[#7b6b60] tracking-[0.05em]">
+            Manage your digital menu, pricing, and availability states.
+          </p>
         </div>
-        <Button type="button" onClick={openCreateScreen} className={accentButtonClass}>
+        <Button
+          type="button"
+          onClick={openCreateScreen}
+          className={accentButtonClass}
+        >
           <RiAddLine className="size-4" />
           Add Item
         </Button>
       </div>
 
-      <div className="space-y-4 border border-[#efd1b4] bg-[#fcf7f2] p-4">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_220px_150px_auto]">
-          <div className="relative">
-            <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#b09076]" />
-            <Input
-              className="h-10 border-[#e7c8ad] bg-white pl-9 text-sm"
-              placeholder="Search menu items..."
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-            />
+      <div className="space-y-4 border border-[#efd1b4] bg-white p-4">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_220px_150px_auto] border-b border-[#efd1b4] pb-3">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="item-quick-search">Quick Search</Label>
+            <div className="relative">
+              <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#b09076]" />
+              <Input
+                id="item-quick-search"
+                className="h-11 border-[#e7c8ad] bg-white pl-9 text-sm tracking-[0.08em]"
+                placeholder="Search menu items..."
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
           </div>
 
-          <Select
-            value={String(categoryFilter)}
-            onValueChange={(value) => {
-              setCategoryFilter(value === "all" ? "all" : Number(value));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="h-10 border-[#e7c8ad] bg-white text-sm">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.categories_id} value={String(category.categories_id)}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="item-category-filter">Category Filter</Label>
+            <Select
+              value={String(categoryFilter)}
+              onValueChange={(value) => {
+                setCategoryFilter(value === "all" ? "all" : Number(value));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger
+                id="item-category-filter"
+                className="h-11 border-[#e7c8ad] bg-white text-sm py-5"
+              >
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem
+                    key={category.categories_id}
+                    value={String(category.categories_id)}
+                  >
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={String(statusFilter)}
-            onValueChange={(value) => {
-              setStatusFilter(value === "all" ? "all" : Number(value) === 1 ? 1 : 0);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="h-10 border-[#e7c8ad] bg-white text-sm">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="1">Active</SelectItem>
-              <SelectItem value="0">Out Of Stock</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="item-status-filter">Status Filter</Label>
+            <Select
+              value={String(statusFilter)}
+              onValueChange={(value) => {
+                setStatusFilter(
+                  value === "all" ? "all" : Number(value) === 1 ? 1 : 0,
+                );
+                setPage(1);
+              }}
+            >
+              <SelectTrigger
+                id="item-status-filter"
+                className="h-11 border-[#e7c8ad] bg-white text-sm py-5"
+              >
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="1">Active</SelectItem>
+                <SelectItem value="0">Out Of Stock</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={String(pageSize)}
-            onValueChange={(value) => {
-              setPageSize(Number(value));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="h-10 border-[#e7c8ad] bg-white text-sm">
-              <SelectValue placeholder="Per page" />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <SelectItem key={size} value={String(size)}>
-                  {size} / page
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="item-page-size">Per Page</Label>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger
+                id="item-page-size"
+                className="h-11 border-[#e7c8ad] bg-white text-sm py-5"
+              >
+                <SelectValue placeholder="Per page" />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size} / page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Button type="button" variant="outline" className={outlineButtonClass} onClick={() => void loadData()}>
-            <RiRefreshLine className="size-4" />
-            Refresh
-          </Button>
+          <div className="flex items-end">
+            <Button
+              type="button"
+              variant="outline"
+              className={`${outlineButtonClass} !h-11`}
+              onClick={() => void loadData()}
+            >
+              <RiRefreshLine className="size-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="border border-[#efdac8] bg-white">
           <Table>
-            <TableHeader className="bg-[#f8f0e8] text-[#67584d]">
+            <TableHeader className="bg-[#ffeae0] text-[#584237] uppercase tracking-[0.04em]">
               <TableRow>
                 <TableHead className="w-9">
                   <Checkbox />
                 </TableHead>
-                <TableHead>Item Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-[14px] text-[#584237] font-bold">
+                  Item Name
+                </TableHead>
+                <TableHead className="text-[14px] text-[#584237] font-bold">
+                  Category
+                </TableHead>
+                <TableHead className="text-[14px] text-[#584237] font-bold">
+                  Price
+                </TableHead>
+                <TableHead className="text-[14px] text-[#584237] font-bold">
+                  Status
+                </TableHead>
+                <TableHead className="text-[14px] text-[#584237] font-bold">
+                  Created Date
+                </TableHead>
+                <TableHead className="text-right text-[14px] text-[#584237] font-bold">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -652,7 +751,10 @@ export default function ItemName() {
                 </TableRow>
               ) : paginatedItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center text-[#9d8e82]">
+                  <TableCell
+                    colSpan={7}
+                    className="py-10 text-center text-[#9d8e82]"
+                  >
                     No menu items found.
                   </TableCell>
                 </TableRow>
@@ -660,7 +762,10 @@ export default function ItemName() {
                 paginatedItems.map((item) => {
                   const resolvedThumb = resolvePhotoUrl(item.photo_url);
                   return (
-                    <TableRow key={item.item_id} className="border-b border-[#f3e8de] hover:bg-[#fff8f2]">
+                    <TableRow
+                      key={item.item_id}
+                      className="border-b border-[#f3e8de] hover:bg-[#fff8f2]"
+                    >
                       <TableCell>
                         <Checkbox />
                       </TableCell>
@@ -674,8 +779,12 @@ export default function ItemName() {
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
                                   // Hide broken image and show fallback text
-                                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                                  const parent = (e.currentTarget as HTMLImageElement).parentElement;
+                                  (
+                                    e.currentTarget as HTMLImageElement
+                                  ).style.display = "none";
+                                  const parent = (
+                                    e.currentTarget as HTMLImageElement
+                                  ).parentElement;
                                   if (parent) {
                                     parent.innerHTML =
                                       '<div class="grid h-full place-items-center text-[10px] text-[#ae9883]">IMG</div>';
@@ -683,29 +792,42 @@ export default function ItemName() {
                                 }}
                               />
                             ) : (
-                              <div className="grid h-full place-items-center text-[10px] text-[#ae9883]">IMG</div>
+                              <div className="grid h-full place-items-center text-[10px] text-[#ae9883]">
+                                IMG
+                              </div>
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-[#3d312a]">{item.name}</p>
-                            <p className="text-[11px] text-[#a6907e]">ID: MENU-{String(item.item_id).padStart(3, "0")}</p>
+                            <p className="font-normal text-[15px] capitalize text-[#3d312a]">
+                              {item.name}
+                            </p>
+                            <p className="text-[11px] text-[#a6907e]">
+                              ID: MENU-{String(item.item_id).padStart(3, "0")}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-[#5e4f44]">{getCategoryName(item.categories_id)}</TableCell>
-                      <TableCell className="font-medium text-[#3f3025]">{asCurrency(item.price)}</TableCell>
+                      <TableCell className="text-[#5e4f44]">
+                        {getCategoryName(item.categories_id)}
+                      </TableCell>
+                      <TableCell className="font-medium text-[#3f3025]">
+                        {asCurrency(item.price)}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={item.status === 1 ? "default" : "secondary"}
-                          className={`rounded-none px-2 py-0.5 text-[10px] tracking-[0.05em] ${item.status === 1
+                          className={`rounded-none px-2 py-0.5 text-[10px] tracking-[0.05em] ${
+                            item.status === 1
                               ? "border border-[#b8dfc5] bg-[#ecfff2] text-[#2e9c4f]"
                               : "border border-[#f0dcc5] bg-[#fff5e9] text-[#c67832]"
-                            }`}
+                          }`}
                         >
                           {statusLabel(item.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-[#6e6155]">{asDate(item.created_at)}</TableCell>
+                      <TableCell className="text-[#6e6155]">
+                        {asDate(item.created_at)}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1.5">
                           <Button
@@ -724,7 +846,9 @@ export default function ItemName() {
                             className="rounded-none border-[#e7cbb3] text-[#8d664f] hover:bg-[#fff2e7]"
                             onClick={() => void onToggleStatus(item)}
                           >
-                            <span className="text-[10px] font-semibold uppercase">{item.status === 1 ? "Off" : "On"}</span>
+                            <span className="text-[10px] font-semibold uppercase">
+                              {item.status === 1 ? "Off" : "On"}
+                            </span>
                           </Button>
                           <Button
                             type="button"
@@ -745,10 +869,12 @@ export default function ItemName() {
           </Table>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#7d6b5c]">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#7d6b5c] bg-[#fff1eb] py-3 px-4 border border-[#e7c8ad]">
           <p>
-            Showing {(page - 1) * pageSize + (paginatedItems.length === 0 ? 0 : 1)}-
-            {(page - 1) * pageSize + paginatedItems.length} of {filtered.length} items
+            Showing{" "}
+            {(page - 1) * pageSize + (paginatedItems.length === 0 ? 0 : 1)}-
+            {(page - 1) * pageSize + paginatedItems.length} of {filtered.length}{" "}
+            items
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -762,7 +888,7 @@ export default function ItemName() {
               Prev
             </Button>
             <span>
-              Page {page} / {totalPages}
+              {page} / {totalPages}
             </span>
             <Button
               type="button"
@@ -778,18 +904,46 @@ export default function ItemName() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.08em] text-[#9b8a7b]">Total Items</p>
-          <p className="mt-1 text-3xl font-semibold text-[#3a2f27]">{items.length}</p>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        {/* Total Items */}
+        <div className="border border-[#e7cdb8] bg-[#f7f4f2] px-5 py-4">
+          <p className="text-[16px] font-light uppercase tracking-[0.08em] text-[#9b8a7b]">
+            Total Items
+          </p>
+
+          <p className="mt-2 text-3xl font-bold leading-none text-[#2f241d]">
+            {items.length}
+          </p>
         </div>
-        <div className="border border-[#efd1b4] bg-[#fffdfa] p-4">
-          <p className="text-xs uppercase tracking-[0.08em] text-[#9b8a7b]">Active Items</p>
-          <p className="mt-1 text-3xl font-semibold text-[#2f9b4b]">{activeItems}</p>
+
+        {/* Active Items */}
+        <div className="border border-[#e7cdb8] bg-[#f7f4f2] px-5 py-4">
+          <p className="text-[16px] font-light uppercase tracking-[0.08em] text-[#9b8a7b]">
+            Active Items
+          </p>
+
+          <p className="mt-2 text-3xl font-bold leading-none text-[#16a34a]">
+            {activeItems}
+          </p>
         </div>
-        <div className="border border-[#f36c21] bg-[#f36c21] p-4 text-white">
-          <p className="text-xs uppercase tracking-[0.08em] text-[#ffe2cd]">Menu Health Score</p>
-          <p className="mt-1 text-3xl font-semibold">{menuHealthScore}%</p>
+
+        {/* Menu Health Score */}
+        <div className="border border-[#f97316] bg-[#f97316] px-5 py-4 text-white md:col-span-2">
+          <p className="text-[16px] font-light uppercase tracking-[0.08em] text-[#ffe7d6]">
+            Menu Health Score
+          </p>
+
+          <p className="mt-2 text-3xl font-bold leading-none">
+            {menuHealthScore}%
+          </p>
+
+          {/* Progress Bar */}
+          <div className="mt-4 h-1 w-full overflow-hidden bg-white/30">
+            <div
+              className="h-full bg-white"
+              style={{ width: `${menuHealthScore}%` }}
+            ></div>
+          </div>
         </div>
       </div>
     </section>
@@ -817,20 +971,31 @@ export default function ItemName() {
 
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#efd8c6] px-4 py-4">
           <div>
-            <h2 className="text-base font-semibold uppercase tracking-[0.08em] text-[#3f3129]">
+            <h2 className="text-[16px] font-medium uppercase tracking-[0.08em] text-[#9d4300]">
               {isEdit ? "Edit Menu Item" : "Add Menu Item"}
             </h2>
-            <p className="text-sm text-[#8f7b6b]">
+            <p className="text-[14px] tracking-[0.04em] text-[#584237] mb-6">
               {isEdit
                 ? `ID: MENU-${String(editing?.item_id ?? 0).padStart(3, "0")} | Last update: ${asDate(editing?.updated_at)}`
                 : "Configure a new item for your digital terminal catalog."}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" variant="outline" className={outlineButtonClass} onClick={backToList} disabled={saving}>
+          <div className="flex flex-wrap items-center gap-2 text-light">
+            <Button
+              type="button"
+              variant="outline"
+              className={outlineButtonClass}
+              onClick={backToList}
+              disabled={saving}
+            >
               Cancel
             </Button>
-            <Button type="button" className={accentButtonClass} onClick={() => void onSave()} disabled={saving || detailLoading}>
+            <Button
+              type="button"
+              className={accentButtonClass}
+              onClick={() => void onSave()}
+              disabled={saving || detailLoading}
+            >
               {saving ? "Saving..." : isEdit ? "Update Item" : "Create Item"}
             </Button>
           </div>
@@ -843,19 +1008,33 @@ export default function ItemName() {
         ) : (
           <div className="grid grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="space-y-4">
-              <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
+              <section className="border border-[#efd8c6] bg-white p-3">
                 <div className="mb-3 flex items-center justify-between border-b border-[#efddce] pb-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Basic Details</h3>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#b9a494]">Required Info</span>
+                  <h3 className="text-xs font-medium uppercase tracking-widest text-[#a65e29]">
+                    Basic Details
+                  </h3>
+                  <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#b9a494]">
+                    Required Info
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <div className="space-y-1.5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6f5f54]">Category</p>
+                    <p className="text-sm font-medium uppercase tracking-[0.08em]">
+                      Category
+                    </p>
                     <Select
-                      value={form.categories_id ? String(form.categories_id) : "__none__"}
+                      value={
+                        form.categories_id
+                          ? String(form.categories_id)
+                          : "__none__"
+                      }
                       onValueChange={(value) =>
-                        setForm((prev) => ({ ...prev, categories_id: value === "__none__" ? 0 : Number(value) }))
+                        setForm((prev) => ({
+                          ...prev,
+                          categories_id:
+                            value === "__none__" ? 0 : Number(value),
+                        }))
                       }
                       disabled={saving || isEdit}
                     >
@@ -863,9 +1042,14 @@ export default function ItemName() {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__none__">Select category</SelectItem>
+                        <SelectItem value="__none__">
+                          Select category
+                        </SelectItem>
                         {categories.map((category) => (
-                          <SelectItem key={category.categories_id} value={String(category.categories_id)}>
+                          <SelectItem
+                            key={category.categories_id}
+                            value={String(category.categories_id)}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -875,20 +1059,27 @@ export default function ItemName() {
 
                   <Input
                     label="Item Name"
-                    className="h-10 border-[#e7c8ad] bg-white text-sm"
+                    className="h-10 border-[#e7c8ad] bg-white"
                     placeholder="e.g., Spicy Miso Ramen"
                     value={form.name}
-                    onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                    onChange={(event) =>
+                      setForm((prev) => ({ ...prev, name: event.target.value }))
+                    }
                     disabled={saving}
                   />
 
                   <div className="md:col-span-2">
                     <Textarea
                       label="Description"
-                      className="min-h-24 border-[#e7c8ad] bg-white text-sm"
+                      className="min-h-24 border-[#e7c8ad] bg-white"
                       placeholder="Describe the flavors and ingredients..."
                       value={form.description}
-                      onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                      onChange={(event) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          description: event.target.value,
+                        }))
+                      }
                       disabled={saving}
                     />
                   </div>
@@ -898,19 +1089,29 @@ export default function ItemName() {
                     type="number"
                     min={0}
                     step="0.01"
-                    className="h-10 border-[#e7c8ad] bg-white text-sm"
+                    className="h-10 border-[#e7c8ad] bg-white"
                     value={form.price}
-                    onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        price: event.target.value,
+                      }))
+                    }
                     disabled={saving}
                   />
 
                   <div className="space-y-1.5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6f5f54]">Item Status</p>
+                    <p className="text-[14px] font-medium uppercase tracking-[0.08em] text-[#6f5f54]">
+                      Item Status
+                    </p>
                     <div className="flex h-10 items-center gap-3 border border-[#e7c8ad] bg-white px-3">
                       <Switch
                         checked={form.status === 1}
                         onCheckedChange={(checked) =>
-                          setForm((prev) => ({ ...prev, status: checked ? 1 : 0 }))
+                          setForm((prev) => ({
+                            ...prev,
+                            status: checked ? 1 : 0,
+                          }))
                         }
                         disabled={saving}
                       />
@@ -922,18 +1123,23 @@ export default function ItemName() {
                 </div>
               </section>
 
-              <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
+              <section className="border border-[#efd8c6] bg-white p-3">
                 <div className="mb-3 flex items-center justify-between border-b border-[#efddce] pb-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Customization Groups</h3>
+                  <h3 className="text-[14px] font-medium uppercase tracking-[0.07em] text-[#a65e29]">
+                    Customization Groups
+                  </h3>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-8 rounded-none border-[#e7c8ad] bg-white px-3 text-[11px] uppercase tracking-[0.07em] text-[#a35b27] hover:bg-[#fff4ea]"
+                    className="h-8 rounded-none border-[#e7c8ad] px-3 text-[13px] uppercase tracking-[0.07em] text-[#a35b27] hover:bg-[#fff4ea] bg-[#ffedd5]"
                     onClick={() =>
                       setForm((prev) => ({
                         ...prev,
-                        option_groups: [...prev.option_groups, emptyOptionGroup()],
+                        option_groups: [
+                          ...prev.option_groups,
+                          emptyOptionGroup(),
+                        ],
                       }))
                     }
                     disabled={saving}
@@ -944,13 +1150,20 @@ export default function ItemName() {
 
                 <div className="space-y-3">
                   {visibleGroups.map((group) => {
-                    const groupIndex = form.option_groups.findIndex((candidate) => candidate === group);
+                    const groupIndex = form.option_groups.findIndex(
+                      (candidate) => candidate === group,
+                    );
                     const groupKey = `${group.group_id ?? "new"}-${groupIndex}`;
-                    const visibleOptions = group.options.filter((option) => !option.is_deleted);
+                    const visibleOptions = group.options.filter(
+                      (option) => !option.is_deleted,
+                    );
                     const groupCollapsed = collapsedGroupKeys.has(groupKey);
 
                     return (
-                      <div key={groupKey} className="border border-[#efdccd] bg-white p-2.5">
+                      <div
+                        key={groupKey}
+                        className="border border-[#efdccd] bg-white p-2.5"
+                      >
                         <div className="grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto]">
                           <Input
                             label="Group Name"
@@ -980,7 +1193,9 @@ export default function ItemName() {
 
                         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
                           <div className="flex items-center justify-between border border-[#ecd3bf] px-2.5 py-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">Multiple</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">
+                              Multiple
+                            </span>
                             <Switch
                               checked={group.multiple_select === 1}
                               onCheckedChange={(checked) =>
@@ -993,7 +1208,9 @@ export default function ItemName() {
                             />
                           </div>
                           <div className="flex items-center justify-between border border-[#ecd3bf] px-2.5 py-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">Required</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">
+                              Required
+                            </span>
                             <Switch
                               checked={group.is_required === 1}
                               onCheckedChange={(checked) =>
@@ -1006,7 +1223,9 @@ export default function ItemName() {
                             />
                           </div>
                           <div className="flex items-center justify-between border border-[#ecd3bf] px-2.5 py-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">Status</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#6d5d52]">
+                              Status
+                            </span>
                             <Switch
                               checked={(group.status ?? 1) === 1}
                               onCheckedChange={(checked) =>
@@ -1051,26 +1270,39 @@ export default function ItemName() {
                               <TableHeader className="bg-[#fbf3ed] text-[#6b5b50]">
                                 <TableRow>
                                   <TableHead>Choice Name</TableHead>
-                                  <TableHead className="w-34">Extra Price</TableHead>
+                                  <TableHead className="w-34">
+                                    Extra Price
+                                  </TableHead>
                                   <TableHead className="w-30">Status</TableHead>
-                                  <TableHead className="w-16 text-right">Action</TableHead>
+                                  <TableHead className="w-16 text-right">
+                                    Action
+                                  </TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {visibleOptions.map((option) => {
-                                  const optionIndex = group.options.findIndex((candidate) => candidate === option);
+                                  const optionIndex = group.options.findIndex(
+                                    (candidate) => candidate === option,
+                                  );
                                   return (
-                                    <TableRow key={`${option.option_id ?? "new"}-${optionIndex}`} className="border-b border-[#f5e8de]">
+                                    <TableRow
+                                      key={`${option.option_id ?? "new"}-${optionIndex}`}
+                                      className="border-b border-[#f5e8de]"
+                                    >
                                       <TableCell>
                                         <Input
                                           className="h-8 border-[#e7c8ad] text-sm"
                                           placeholder="Choice name"
                                           value={option.name}
                                           onChange={(event) =>
-                                            updateOption(groupIndex, optionIndex, (current) => ({
-                                              ...current,
-                                              name: event.target.value,
-                                            }))
+                                            updateOption(
+                                              groupIndex,
+                                              optionIndex,
+                                              (current) => ({
+                                                ...current,
+                                                name: event.target.value,
+                                              }),
+                                            )
                                           }
                                           disabled={saving}
                                         />
@@ -1082,10 +1314,16 @@ export default function ItemName() {
                                           step="0.01"
                                           value={String(option.price_delta)}
                                           onChange={(event) =>
-                                            updateOption(groupIndex, optionIndex, (current) => ({
-                                              ...current,
-                                              price_delta: Number(event.target.value),
-                                            }))
+                                            updateOption(
+                                              groupIndex,
+                                              optionIndex,
+                                              (current) => ({
+                                                ...current,
+                                                price_delta: Number(
+                                                  event.target.value,
+                                                ),
+                                              }),
+                                            )
                                           }
                                           disabled={saving}
                                         />
@@ -1095,10 +1333,14 @@ export default function ItemName() {
                                           <Switch
                                             checked={(option.status ?? 1) === 1}
                                             onCheckedChange={(checked) =>
-                                              updateOption(groupIndex, optionIndex, (current) => ({
-                                                ...current,
-                                                status: checked ? 1 : 0,
-                                              }))
+                                              updateOption(
+                                                groupIndex,
+                                                optionIndex,
+                                                (current) => ({
+                                                  ...current,
+                                                  status: checked ? 1 : 0,
+                                                }),
+                                              )
                                             }
                                             disabled={saving}
                                           />
@@ -1110,7 +1352,12 @@ export default function ItemName() {
                                           size="icon-xs"
                                           variant="outline"
                                           className="rounded-none border-[#efcdb8] text-[#b54b2d] hover:bg-[#fff1ea]"
-                                          onClick={() => removeOption(groupIndex, optionIndex)}
+                                          onClick={() =>
+                                            removeOption(
+                                              groupIndex,
+                                              optionIndex,
+                                            )
+                                          }
                                           disabled={saving}
                                         >
                                           <RiDeleteBinLine className="size-3.5" />
@@ -1129,7 +1376,10 @@ export default function ItemName() {
                                       onClick={() =>
                                         updateGroup(groupIndex, (current) => ({
                                           ...current,
-                                          options: [...current.options, emptyOption()],
+                                          options: [
+                                            ...current.options,
+                                            emptyOption(),
+                                          ],
                                         }))
                                       }
                                       disabled={saving}
@@ -1150,11 +1400,13 @@ export default function ItemName() {
             </div>
 
             <div className="space-y-4">
-              <section className="border border-[#efd8c6] bg-[#fcf7f2] p-3">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#a65e29]">Item Image</h3>
+              <section className="border border-[#efd8c6] bg-white p-3">
+                <h3 className="mb-5 text-xs border-b border-b-[#efd8c6] font-semibold uppercase tracking-widest text-[#a65e29] pb-3">
+                  Item Image
+                </h3>
                 <label
                   htmlFor="item-photo-upload"
-                  className="grid min-h-56 cursor-pointer place-items-center border border-dashed border-[#efbe95] bg-[#fff5ec] p-4 text-center"
+                  className="grid min-h-56 cursor-pointer place-items-center border border-dashed border-[#efbe95] bg-[#fff5ec] p-4 text-center mb-5"
                 >
                   {imagePreviewUrl ? (
                     <img
@@ -1179,8 +1431,12 @@ export default function ItemName() {
                   ) : (
                     <div className="space-y-2 text-[#c6743a]">
                       <RiImageAddLine className="mx-auto size-8" />
-                      <p className="text-xs font-semibold uppercase tracking-[0.07em]">Drop image or click to upload</p>
-                      <p className="text-[11px] text-[#b59378]">Square format (1080x1080) recommended</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.07em]">
+                        Drop image or click to upload
+                      </p>
+                      <p className="text-[11px] text-[#b59378]">
+                        Square format (1080x1080) recommended
+                      </p>
                     </div>
                   )}
                 </label>
@@ -1188,7 +1444,7 @@ export default function ItemName() {
                   id="item-photo-upload"
                   type="file"
                   accept="image/*"
-                  className="mt-3 h-10 border-[#e7c8ad] bg-white"
+                  className="mt-3 h-10 border-[#e7c8ad] bg-white hidden"
                   onChange={onSelectPhoto}
                   disabled={saving}
                 />
@@ -1200,29 +1456,40 @@ export default function ItemName() {
                   onChange={(event) =>
                     setForm((prev) => ({
                       ...prev,
-                      existing_photo_url: event.target.value.trim() ? event.target.value : null,
+                      existing_photo_url: event.target.value.trim()
+                        ? event.target.value
+                        : null,
                     }))
                   }
                   disabled={saving}
                 />
-                <p className="mt-1 text-[11px] text-[#ab9685]">
-                  Linking a CDN URL will prioritize the remote asset over local uploads.
+                <p className="mt-2 text-[11px] text-[#ab9685] italic tracking-[0.05em]">
+                  Linking a CDN URL will prioritize the remote asset over local
+                  uploads.
                 </p>
               </section>
 
               <section className="border border-[#f36c21] bg-[#f36c21] p-3 text-white">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#ffd9bf]">Catalog Preview</h3>
+                <h3 className="text-[15px] font-light uppercase tracking-[0.2rem] text-[#ffd9bf]">
+                  Catalog Preview
+                </h3>
                 <div className="mt-3 space-y-2 text-xs">
                   <div className="flex items-center justify-between border-b border-white/30 pb-1">
-                    <span className="text-[#ffd9bf]">Visibility</span>
+                    <span className="text-[#fbdece] uppercase tracking-[0.05em]">
+                      Visibility
+                    </span>
                     <span>{form.status === 1 ? "Public" : "Hidden"}</span>
                   </div>
                   <div className="flex items-center justify-between border-b border-white/30 pb-1">
-                    <span className="text-[#ffd9bf]">Terminal</span>
+                    <span className="text-[#fbdece] uppercase tracking-[0.05em]">
+                      Terminal
+                    </span>
                     <span>All Locations</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#ffd9bf]">Tax Rate</span>
+                    <span className="text-[#fbdece] uppercase tracking-[0.05em]">
+                      Tax Rate
+                    </span>
                     <span>8.5% (Standard)</span>
                   </div>
                 </div>
@@ -1238,10 +1505,21 @@ export default function ItemName() {
         )}
 
         <div className="flex flex-wrap justify-end gap-2 border-t border-[#efd8c6] px-4 py-4">
-          <Button type="button" variant="outline" className={outlineButtonClass} onClick={backToList} disabled={saving}>
+          <Button
+            type="button"
+            variant="outline"
+            className={outlineButtonClass}
+            onClick={backToList}
+            disabled={saving}
+          >
             Cancel
           </Button>
-          <Button type="button" className={accentButtonClass} onClick={() => void onSave()} disabled={saving || detailLoading}>
+          <Button
+            type="button"
+            className={accentButtonClass}
+            onClick={() => void onSave()}
+            disabled={saving || detailLoading}
+          >
             {saving ? "Saving..." : isEdit ? "Update Item" : "Create Item"}
           </Button>
         </div>
@@ -1250,7 +1528,7 @@ export default function ItemName() {
   };
 
   return (
-    <div className="space-y-5 text-[#3f3025] [&_button]:cursor-pointer [&_input]:cursor-pointer [&_label]:cursor-pointer [&_select]:cursor-pointer [&_textarea]:cursor-pointer">
+    <div className="space-y-5 text-[#3f3025] [&_button]:cursor-pointer [&_input]:cursor-pointer [&_label]:cursor-pointer [&_select]:cursor-pointer [&_textarea]:cursor-pointer p-6">
       {screenMode === "list" ? renderListScreen() : renderEditorScreen()}
     </div>
   );

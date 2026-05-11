@@ -18,27 +18,27 @@ const Toaster = ({ ...props }: ToasterProps) => {
       icons={{
         success: (
           <span className="app-toast-icon-wrap">
-            <RiCheckboxCircleFill className="size-4" />
+            <RiCheckboxCircleFill className="size-6" />
           </span>
         ),
         info: (
           <span className="app-toast-icon-wrap">
-            <RiInformationFill className="size-4" />
+            <RiInformationFill className="size-6" />
           </span>
         ),
         warning: (
           <span className="app-toast-icon-wrap">
-            <RiErrorWarningFill className="size-4" />
+            <RiErrorWarningFill className="size-6" />
           </span>
         ),
         error: (
           <span className="app-toast-icon-wrap">
-            <RiCloseCircleFill className="size-4" />
+            <RiCloseCircleFill className="size-6" />
           </span>
         ),
         loading: (
           <span className="app-toast-icon-wrap">
-            <RiLoader4Line className="size-4 animate-spin" />
+            <RiLoader4Line className="size-6 animate-spin" />
           </span>
         ),
       }}
