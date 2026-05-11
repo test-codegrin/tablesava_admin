@@ -29,13 +29,13 @@ import {
 import { getTables } from "@/services/tableService";
 import type { OrderDetail, OrderStatus, OrderSummary } from "@/types/admin";
 import Loader from "@/pages/Loader";
-import {
-  RiSearchLine,
-} from "@remixicon/react";
+import { RiSearchLine } from "@remixicon/react";
 
 const PAGE_SIZE = 10;
 
-const badgeVariantForStatus = (status: OrderStatus): "secondary" | "default" | "outline" => {
+const badgeVariantForStatus = (
+  status: OrderStatus,
+): "secondary" | "default" | "outline" => {
   if (status === 0) {
     return "secondary";
   }
@@ -113,7 +113,8 @@ export default function LiveOrders() {
         normalizedSearch.length === 0 ||
         String(order.order_id).includes(normalizedSearch) ||
         String(order.table_number ?? "").includes(normalizedSearch);
-      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || order.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [orders, search, statusFilter]);
@@ -192,67 +193,62 @@ export default function LiveOrders() {
         </Button>
       </div>
 
-  <div className="grid grid-cols-1 gap-4 border border-[#ecd9c6] bg-white p-5 md:grid-cols-[1fr_220px] text-[16px] text-[#6e5d50]">
-  
-  {/* Search */}
-<div className="flex flex-col gap-2">
-  <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]">
-    Search Orders
-  </label>
+      <div className="grid grid-cols-1 gap-4 border border-[#ecd9c6] bg-white p-5 md:grid-cols-[1fr_220px] text-[16px] text-[#6e5d50]">
+        {/* Search */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]">
+            Search Orders
+          </label>
 
-  <div className="relative">
-    
-    <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#a99280]" />
+          <div className="relative">
+            <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#a99280]" />
 
-    <Input
-      placeholder="Order ID or Table Number"
-      className="h-11 border-[#e7cdb8] bg-white pl-9 text-sm"
-      value={search}
-      onChange={(event) => {
-        setSearch(event.target.value);
-        setPage(1);
-      }}
-    />
-  </div>
-</div>
+            <Input
+              placeholder="Order ID or Table Number"
+              className="h-11 border-[#e7cdb8] bg-white pl-9 text-sm"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+        </div>
 
-  {/* Status Filter */}
-  <div className="flex flex-col gap-2">
-    <label
-      htmlFor="order-status-filter"
-      className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]"
-    >
-      Order Status
-    </label>
+        {/* Status Filter */}
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="order-status-filter"
+            className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6e5d50]"
+          >
+            Order Status
+          </label>
 
-    <select
-      id="order-status-filter"
-      className="h-11 border border-[#e7cdb8] bg-white px-3 text-sm text-[#4d3d32] outline-none focus:border-[#c56524]"
-      value={String(statusFilter)}
-      onChange={(event) => {
-        const value = event.target.value;
+          <select
+            id="order-status-filter"
+            className="h-11 border border-[#e7cdb8] bg-white px-3 text-sm text-[#4d3d32] outline-none focus:border-[#c56524]"
+            value={String(statusFilter)}
+            onChange={(event) => {
+              const value = event.target.value;
 
-        if (value === "all") {
-          setStatusFilter("all");
-        } else {
-          const parsed = Number(value);
+              if (value === "all") {
+                setStatusFilter("all");
+              } else {
+                const parsed = Number(value);
 
-          setStatusFilter(
-            parsed === 1 ? 1 : parsed === 2 ? 2 : 0
-          );
-        }
+                setStatusFilter(parsed === 1 ? 1 : parsed === 2 ? 2 : 0);
+              }
 
-        setPage(1);
-      }}
-    >
-      <option value="all">All Orders</option>
-      <option value="0">Pending</option>
-      <option value="1">Accepted</option>
-      <option value="2">Completed</option>
-    </select>
-  </div>
-
-</div>
+              setPage(1);
+            }}
+          >
+            <option value="all">All Orders</option>
+            <option value="0">Pending</option>
+            <option value="1">Accepted</option>
+            <option value="2">Completed</option>
+          </select>
+        </div>
+      </div>
 
       <div className="border border-[#ecd9c6] bg-white">
         <Table>
@@ -263,16 +259,21 @@ export default function LiveOrders() {
               <TableHead className="text-[#7c2d12]">Items</TableHead>
               <TableHead className="text-[#7c2d12]">Total Qty</TableHead>
               <TableHead className="text-[#7c2d12]">Total Amount</TableHead>
-              <TableHead className="text-[#7c2d12] text-right">Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead className="text-[#7c2d12]">Status</TableHead>
+              <TableHead className="text-[#7c2d12]">Created</TableHead>
+              <TableHead className="text-right text-[#7c2d12]">
+                Action
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={8}>
-                  <Loader message="Loading orders..." className="min-h-[80px]" />
+                  <Loader
+                    message="Loading orders..."
+                    className="min-h-[80px]"
+                  />
                 </TableCell>
               </TableRow>
             ) : paginatedOrders.length === 0 ? (
@@ -286,9 +287,13 @@ export default function LiveOrders() {
                 <TableRow key={order.order_id}>
                   <TableCell>{order.order_id}</TableCell>
                   <TableCell>{order.table_number ?? "-"}</TableCell>
-                  <TableCell>{order.item_count ?? order.item_names?.length ?? 0}</TableCell>
+                  <TableCell>
+                    {order.item_count ?? order.item_names?.length ?? 0}
+                  </TableCell>
                   <TableCell>{order.total_quantity ?? 0}</TableCell>
-                  <TableCell>{formatCurrency(order.total_amount ?? 0)}</TableCell>
+                  <TableCell>
+                    {formatCurrency(order.total_amount ?? 0)}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant={badgeVariantForStatus(order.status)}
@@ -297,7 +302,11 @@ export default function LiveOrders() {
                       {ORDER_STATUS_LABELS[order.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell>{order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</TableCell>
+                  <TableCell>
+                    {order.created_at
+                      ? new Date(order.created_at).toLocaleString()
+                      : "-"}
+                  </TableCell>
                   <TableCell className="text-right ">
                     <Button
                       className="bg-white border border-[#e7cdb8] hover:bg-[#f8efe7]"
@@ -346,13 +355,19 @@ export default function LiveOrders() {
         </div>
       </div>
 
-      <Dialog open={selectedOrderId !== null} onOpenChange={(open) => !open && setSelectedOrderId(null)}>
+      <Dialog
+        open={selectedOrderId !== null}
+        onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      >
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-auto">
           <DialogHeader>
             <DialogTitle>Order Detail</DialogTitle>
           </DialogHeader>
           {!selectedOrder ? (
-            <Loader message="Loading order detail..." className="min-h-[100px]" />
+            <Loader
+              message="Loading order detail..."
+              className="min-h-[100px]"
+            />
           ) : (
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3 border border-zinc-200 p-3 md:grid-cols-3">
@@ -362,21 +377,33 @@ export default function LiveOrders() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500">Table Number</p>
-                  <p className="font-medium">{selectedOrder.table_number ?? "-"}</p>
+                  <p className="font-medium">
+                    {selectedOrder.table_number ?? "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500">Status</p>
-                  <p className={selectedOrder.status === 2 ? "font-medium text-green-600" : "font-medium"}>
+                  <p
+                    className={
+                      selectedOrder.status === 2
+                        ? "font-medium text-green-600"
+                        : "font-medium"
+                    }
+                  >
                     {ORDER_STATUS_LABELS[selectedOrder.status]}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500">Items</p>
-                  <p className="font-medium">{selectedOrder.item_count ?? selectedOrder.items.length}</p>
+                  <p className="font-medium">
+                    {selectedOrder.item_count ?? selectedOrder.items.length}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500">Total Quantity</p>
-                  <p className="font-medium">{selectedOrder.total_quantity ?? 0}</p>
+                  <p className="font-medium">
+                    {selectedOrder.total_quantity ?? 0}
+                  </p>
                 </div>
               </div>
 
@@ -393,7 +420,10 @@ export default function LiveOrders() {
                   <TableBody>
                     {selectedOrder.items.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-zinc-500">
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-zinc-500"
+                        >
                           No line items found.
                         </TableCell>
                       </TableRow>
@@ -437,7 +467,9 @@ export default function LiveOrders() {
               }}
               disabled={!canMoveToAccepted || updatingStatus}
             >
-              {updatingStatus && canMoveToAccepted ? "Updating..." : "Mark Accepted"}
+              {updatingStatus && canMoveToAccepted
+                ? "Updating..."
+                : "Mark Accepted"}
             </Button>
             <Button
               type="button"
@@ -446,7 +478,9 @@ export default function LiveOrders() {
               }}
               disabled={!canMoveToCompleted || updatingStatus}
             >
-              {updatingStatus && canMoveToCompleted ? "Updating..." : "Mark Completed"}
+              {updatingStatus && canMoveToCompleted
+                ? "Updating..."
+                : "Mark Completed"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -454,4 +488,3 @@ export default function LiveOrders() {
     </div>
   );
 }
-

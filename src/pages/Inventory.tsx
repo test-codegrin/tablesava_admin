@@ -526,7 +526,7 @@ export default function Inventory() {
               <TableHead className="text-[#7c2d12]">Img</TableHead>
               <TableHead className="text-[#7c2d12]">Price</TableHead>
               <TableHead className="text-[#7c2d12]">Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-[#7c2d12] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
