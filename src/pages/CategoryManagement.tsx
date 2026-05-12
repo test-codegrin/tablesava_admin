@@ -120,7 +120,7 @@ function StatusToggle({ value, onChange }: StatusToggleProps) {
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [prefilling, setPrefilling] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);

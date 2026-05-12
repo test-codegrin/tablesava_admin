@@ -421,8 +421,6 @@ export default function Inventory() {
 
   const accentButtonClass =
     "h-10 rounded-none border border-[#f36c21] bg-[#f36c21] px-4 text-xs uppercase tracking-[0.07em] text-white hover:bg-[#df5d15]";
-  const outlineButtonClass =
-    "h-10 rounded-none border border-[#eac8aa] bg-white px-4 text-xs uppercase tracking-[0.07em] text-[#735f4f] hover:bg-[#f8eee4]";
 
   return (
     <div className="space-y-4 p-6 bg-[#fff8f6]">
