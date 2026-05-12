@@ -153,12 +153,21 @@ export interface OrderSummary {
   item_quantities?: OrderItemQuantity[];
   status: OrderStatus;
   total_amount: number;
+  receipt_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface OrderDetail extends OrderSummary {
   items: OrderLineItem[];
+}
+
+export interface GenerateBookingReceiptRequest {
+  bookingId: string | number;
+}
+
+export interface GenerateReceiptResponse {
+  receiptUrl: string;
 }
 
 export interface DashboardOverviewQuery {

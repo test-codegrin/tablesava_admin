@@ -1,5 +1,7 @@
-import { requestApi } from "@/api/apiClient";
+import axios from "axios";
+import api, { ApiRequestError, parseApiError, requestApi } from "@/api/apiClient";
 import type {
+  GenerateReceiptResponse,
   OrderDetail,
   OrderItemQuantity,
   OrderLineItem,
@@ -68,6 +70,37 @@ const mapItemQuantity = (value: unknown): OrderItemQuantity => {
   };
 };
 
+export const getReceiptUrlFromResponse = (value: unknown): string | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const directUrl = toNullableString(value.receiptUrl) ?? toNullableString(value.url);
+  if (directUrl) {
+    return directUrl;
+  }
+
+  if (isRecord(value.data)) {
+    const dataUrl =
+      toNullableString(value.data.receiptUrl) ??
+      toNullableString(value.data.url) ??
+      getReceiptUrlFromResponse(value.data);
+    if (dataUrl) {
+      return dataUrl;
+    }
+  }
+
+  if (isRecord(value.receipt)) {
+    return (
+      toNullableString(value.receipt.receiptUrl) ??
+      toNullableString(value.receipt.url) ??
+      null
+    );
+  }
+
+  return toNullableString(value.receipt_url);
+};
+
 const mapOrderSummary = (value: unknown): OrderSummary => {
   const payload = isRecord(value) ? value : {};
   const itemNames = ensureArray<unknown>(payload.item_names).map((entry) =>
@@ -94,6 +127,7 @@ const mapOrderSummary = (value: unknown): OrderSummary => {
     item_quantities: itemQuantities,
     status: toOrderStatus(payload.status),
     total_amount: toNumber(payload.amount),
+    receipt_url: getReceiptUrlFromResponse(payload),
     created_at: toNullableString(payload.created_at) ?? undefined,
     updated_at: toNullableString(payload.updated_at) ?? undefined,
   };
@@ -224,3 +258,92 @@ export const updateOrderStatus = async (orderId: number, current: OrderStatus, n
   };
 };
 
+const parseJsonBlob = async (blob: Blob) => {
+  const text = await blob.text();
+  if (!text.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
+};
+
+const isPdfBlob = (blob: Blob, contentType?: string) =>
+  contentType?.toLowerCase().includes("application/pdf") ||
+  blob.type.toLowerCase().includes("application/pdf");
+
+const normalizeReceiptPayload = async (
+  payload: unknown,
+  contentType?: string,
+): Promise<GenerateReceiptResponse> => {
+  if (payload instanceof Blob) {
+    if (isPdfBlob(payload, contentType)) {
+      return { receiptUrl: URL.createObjectURL(payload) };
+    }
+
+    const parsed = await parseJsonBlob(payload);
+    const receiptUrl = getReceiptUrlFromResponse(parsed);
+    if (receiptUrl) {
+      return { receiptUrl };
+    }
+  } else {
+    const receiptUrl = getReceiptUrlFromResponse(payload);
+    if (receiptUrl) {
+      return { receiptUrl };
+    }
+  }
+
+  throw new Error("Receipt was generated, but the response did not include a receipt URL.");
+};
+
+const parseBlobError = async (error: unknown) => {
+  if (!axios.isAxiosError(error) || !(error.response?.data instanceof Blob)) {
+    return parseApiError(error);
+  }
+
+  const parsed = await parseJsonBlob(error.response.data);
+  const status = error.response.status ?? null;
+
+  if (isRecord(parsed)) {
+    const message =
+      toNullableString(parsed.message) ??
+      (isRecord(parsed.data) ? toNullableString(parsed.data.message) : null);
+
+    if (message) {
+      return {
+        status,
+        message,
+        details: parsed.data,
+      };
+    }
+  }
+
+  return parseApiError(error);
+};
+
+export const generateBookingReceipt = async (
+  bookingId: string | number,
+): Promise<GenerateReceiptResponse> => {
+  try {
+    const response = await api.post<Blob | unknown>(
+      `/api/admin/bookings/${bookingId}/receipt`,
+      undefined,
+      {
+        responseType: "blob",
+        headers: {
+          Accept: "application/json, application/pdf",
+        },
+      },
+    );
+
+    return await normalizeReceiptPayload(
+      response.data,
+      response.headers["content-type"],
+    );
+  } catch (error) {
+    throw new ApiRequestError(await parseBlobError(error));
+  }
+};
