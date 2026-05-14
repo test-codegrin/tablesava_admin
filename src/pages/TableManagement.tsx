@@ -852,8 +852,8 @@ export default function TableManagement() {
 
                 {/* Direct link */}
                 <p className="text-[14px] text-[#584237] text-center leading-relaxed">
-                  "Direct link to:<br />
-                  menu.scanorderdone.com/table/{String(qrPreviewTable.table_number).toLowerCase()}"
+                  Scans open the customer app for<br />
+                  Table {qrPreviewTable.table_number}
                 </p>
 
                 {/* Full-width download button */}
