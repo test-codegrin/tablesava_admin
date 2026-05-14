@@ -1,10 +1,29 @@
 import { AxiosError } from "axios";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildVendorAuthHeaders,
+  getStoredVendorToken,
   normalizeResponse,
   parseApiError,
 } from "./apiClient";
+import { AUTH_STORAGE_KEY, LEGACY_AUTH_STORAGE_KEY } from "@/constants/auth";
+
+const storage = new Map<string, string>();
+
+vi.stubGlobal("localStorage", {
+  getItem: vi.fn((key: string) => storage.get(key) ?? null),
+  setItem: vi.fn((key: string, value: string) => {
+    storage.set(key, value);
+  }),
+  removeItem: vi.fn((key: string) => {
+    storage.delete(key);
+  }),
+});
+
+afterEach(() => {
+  storage.clear();
+  vi.clearAllMocks();
+});
 
 describe("normalizeResponse", () => {
   it("normalizes envelope with data", () => {
@@ -90,6 +109,21 @@ describe("buildVendorAuthHeaders", () => {
     const headers = buildVendorAuthHeaders("abc");
     expect(headers).not.toHaveProperty("x-user-token");
     expect(headers).not.toHaveProperty("x-user-authorization");
+  });
+});
+
+describe("getStoredVendorToken", () => {
+  it("reads the canonical vendor token key first", () => {
+    localStorage.setItem(AUTH_STORAGE_KEY, "vendor-token");
+    localStorage.setItem(LEGACY_AUTH_STORAGE_KEY, "legacy-token");
+
+    expect(getStoredVendorToken()).toBe("vendor-token");
+  });
+
+  it("falls back to the legacy admin token key", () => {
+    localStorage.setItem(LEGACY_AUTH_STORAGE_KEY, "legacy-token");
+
+    expect(getStoredVendorToken()).toBe("legacy-token");
   });
 });
 

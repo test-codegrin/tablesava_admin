@@ -7,11 +7,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { parseApiError } from "@/api/apiClient";
+import {
+  getStoredVendorToken,
+  parseApiError,
+  removeStoredVendorToken,
+} from "@/api/apiClient";
 import { getVendorMe, loginVendor } from "@/services/authService";
 import {
   AUTH_STORAGE_KEY,
   AUTH_UNAUTHORIZED_EVENT,
+  LEGACY_AUTH_STORAGE_KEY,
 } from "../constants/auth";
 import type { LoginPayload, VendorProfile } from "../types/dataTypes";
 
@@ -28,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const getStoredToken = () => localStorage.getItem(AUTH_STORAGE_KEY);
+const getStoredToken = getStoredVendorToken;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => getStoredToken());
@@ -37,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoadingUser, setIsLoadingUser] = useState(false);
 
   const clearAuth = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    removeStoredVendorToken();
     setToken(null);
     setUser(null);
   }, []);
@@ -60,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await loginVendor(payload);
 
     localStorage.setItem(AUTH_STORAGE_KEY, data.token);
+    localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
     setToken(data.token);
     setIsLoadingUser(true);
     try {
@@ -103,7 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === AUTH_STORAGE_KEY && event.newValue === null) {
+      if (
+        (event.key === AUTH_STORAGE_KEY || event.key === LEGACY_AUTH_STORAGE_KEY) &&
+        event.newValue === null &&
+        !getStoredToken()
+      ) {
         setToken(null);
         setUser(null);
       }

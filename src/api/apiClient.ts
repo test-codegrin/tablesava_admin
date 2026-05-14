@@ -4,7 +4,11 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
-import { AUTH_STORAGE_KEY, AUTH_UNAUTHORIZED_EVENT } from "../constants/auth";
+import {
+  AUTH_STORAGE_KEY,
+  AUTH_UNAUTHORIZED_EVENT,
+  LEGACY_AUTH_STORAGE_KEY,
+} from "../constants/auth";
 
 type NormalizableResponseShape<T> = {
   success?: boolean;
@@ -195,9 +199,18 @@ const shouldRetryRequest = (
 export const buildVendorAuthHeaders = (token: string | null | undefined) =>
   token ? { Authorization: `Bearer ${token}` } : {};
 
+export const getStoredVendorToken = () =>
+  localStorage.getItem(AUTH_STORAGE_KEY) ||
+  localStorage.getItem(LEGACY_AUTH_STORAGE_KEY);
+
+export const removeStoredVendorToken = () => {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
+};
+
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem(AUTH_STORAGE_KEY);
+    const token = getStoredVendorToken();
 
     if (token) {
       config.headers.Authorization = buildVendorAuthHeaders(token).Authorization;
@@ -220,7 +233,7 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      removeStoredVendorToken();
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
       }
