@@ -251,16 +251,22 @@ const mapQrRecord = (value: unknown): TableQrCodeRecord => {
   const payload = isRecord(value) ? value : {};
   return {
     table_id: toNumber(payload.table_id),
-    table_number: toNumber(payload.table_number),   // kept for type compat
+    table_number: toString(payload.table_number),
+    area_type: toNullableString(payload.area_type) ?? undefined,
     qr_code_url: toNullableString(payload.qr_code_url),
-    table_name: toString(payload.table_name ?? payload.table_number), // ← FIX
+    qr_code_base64: toNullableString(payload.qr_code_base64),
+    qr_code_data_url: toNullableString(payload.qr_code_data_url),
+    qr_content: toNullableString(payload.qr_content),
+    qr_generated_at: toNullableString(payload.qr_generated_at),
+    table_name: toString(payload.table_name ?? payload.table_number),
   };
 };
 
-export const getTableQrCodes = async () => {
+export const getTableQrCodes = async (options?: { includeQr?: boolean }) => {
   const response = await requestApi<unknown>({
     method: "get",
     url: "/tables/qr-codes",
+    params: options?.includeQr ? { include_qr: "true" } : undefined,
   });
 
   const value = response.data ?? response.raw;
@@ -275,6 +281,18 @@ export const getTableQrCodes = async () => {
         : ensureArray<TableQrCodeRecord>([]);
 
   return { records, message: response.message };
+};
+
+export const generateTableQr = async (tableId: number) => {
+  const response = await requestApi<unknown>({
+    method: "post",
+    url: `/tables/${tableId}/qr`,
+  });
+
+  return {
+    qr: mapQrRecord(response.data ?? response.raw),
+    message: response.message || "Table QR code generated successfully.",
+  };
 };
 
 export const getTableQrImageUrl = (tableId: number) =>

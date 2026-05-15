@@ -849,7 +849,7 @@ export default function Inventory() {
                         onClick={() => removeOptionGroup(groupIndex)}
                         disabled={saving}
                       >
-                        {group.group_id ? "Mark Delete" : "Remove"}
+                        {group.group_id ? "Delete" : "Remove"}
                       </Button>
                     </div>
                   </div>
@@ -899,7 +899,7 @@ export default function Inventory() {
                           }
                         />
                         <Input
-                          label="Price Delta"
+                          label="Price"
                           type="number"
                           step="0.01"
                           value={option.price_delta}
@@ -927,7 +927,7 @@ export default function Inventory() {
                             }
                             disabled={saving || group.is_deleted}
                           >
-                            {option.option_id ? "Mark Delete" : "Remove"}
+                            {option.option_id ? "Delete" : "Remove"}
                           </Button>
                         </div>
                       </div>

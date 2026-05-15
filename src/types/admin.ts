@@ -125,8 +125,13 @@ export interface UpsertTablePayload {
 export interface TableQrCodeRecord {
   table_name: ReactNode;
   table_id: number;
-  table_number: number;
+  table_number: number | string;
+  area_type?: string;
   qr_code_url?: string | null;
+  qr_code_base64?: string | null;
+  qr_code_data_url?: string | null;
+  qr_content?: string | null;
+  qr_generated_at?: string | null;
 }
 
 export interface OrderLineItem {

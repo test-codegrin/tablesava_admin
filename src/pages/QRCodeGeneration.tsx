@@ -1,7 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { parseApiError } from "@/api/apiClient";
-import { getTableQrCodes, getTableQrImageUrl } from "@/services/tableService";
+import {
+  generateTableQr,
+  getTableQrCodes,
+  getTableQrImageUrl,
+  getTables,
+} from "@/services/tableService";
 import type { TableQrCodeRecord } from "@/types/admin";
 
 // ── icons (inline SVGs to avoid extra deps) ──────────────────────────────────
@@ -79,31 +84,48 @@ const ChevronDownIcon = () => (
 
 // ── area filter options ────────────────────────────────────────────────────────
 const AREA_OPTIONS = [
-  "All Areas",
-  "Main Hall",
-  "Outdoor",
-  "VIP",
-  "Bar",
-  "Terrace",
+  { value: "all", label: "All Areas" },
+  { value: "main_hall", label: "Main Hall" },
+  { value: "indoor", label: "Indoor" },
+  { value: "outdoor", label: "Outdoor" },
+  { value: "vip", label: "VIP" },
+  { value: "bar_area", label: "Bar Area" },
+  { value: "terrace", label: "Terrace" },
 ];
+
+const normalizeAreaKey = (value?: string | null) => {
+  const normalized = (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (normalized === "bar") {
+    return "bar_area";
+  }
+
+  return normalized;
+};
 
 // ── helper: get display label for a record ───────────────────────────────────
 const getTableLabel = (record: TableQrCodeRecord): string => {
-  // table_name is the string like "T-02" from API; fall back to table_number or table_id
   if (record.table_name) {
     return String(record.table_name);
   }
-  // table_number may be a number (e.g. 2); format it
-  if (record.table_number != null && !isNaN(Number(record.table_number))) {
-    return `T-${String(record.table_number).padStart(2, "0")}`;
+
+  const tableNumber = String(record.table_number ?? "").trim();
+  if (tableNumber) {
+    return !isNaN(Number(tableNumber))
+      ? `T-${tableNumber.padStart(2, "0")}`
+      : tableNumber;
   }
+
   return `T-${record.table_id}`;
 };
 
 export default function QRCodeGeneration() {
   const [records, setRecords] = useState<TableQrCodeRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedArea, setSelectedArea] = useState("All Areas");
+  const [selectedArea, setSelectedArea] = useState("all");
   const [areaDropdownOpen, setAreaDropdownOpen] = useState(false);
   const [selectedTableIds, setSelectedTableIds] = useState<Set<number>>(
     new Set(),
@@ -111,12 +133,27 @@ export default function QRCodeGeneration() {
   const [selectAll, setSelectAll] = useState(false);
   const [previewTableId, setPreviewTableId] = useState<number | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [generatedQrs, setGeneratedQrs] = useState<
+    Record<number, TableQrCodeRecord>
+  >({});
 
   const loadQrCodes = async () => {
     setLoading(true);
     try {
-      const response = await getTableQrCodes();
-      setRecords(response.records);
+      const [qrResponse, tableResponse] = await Promise.all([
+        getTableQrCodes(),
+        getTables(),
+      ]);
+      const tableAreas = new Map(
+        tableResponse.tables.map((table) => [table.table_id, table.area_type]),
+      );
+
+      setRecords(
+        qrResponse.records.map((record) => ({
+          ...record,
+          area_type: record.area_type || tableAreas.get(record.table_id),
+        })),
+      );
     } catch (error) {
       toast.error("Failed to load QR codes", {
         description: parseApiError(error).message,
@@ -130,16 +167,41 @@ export default function QRCodeGeneration() {
     void loadQrCodes();
   }, []);
 
-  // Filter records by area_type if available
-  const filteredRecords =
-    selectedArea === "All Areas"
-      ? records
-      : records.filter(
-          (r) =>
-            (
-              r as TableQrCodeRecord & { area_type?: string }
-            ).area_type?.toLowerCase() === selectedArea.toLowerCase(),
-        );
+  const selectedAreaLabel =
+    AREA_OPTIONS.find((area) => area.value === selectedArea)?.label ||
+    "All Areas";
+
+  const filteredRecords = useMemo(
+    () =>
+      selectedArea === "all"
+        ? records
+        : records.filter(
+            (record) => normalizeAreaKey(record.area_type) === selectedArea,
+          ),
+    [records, selectedArea],
+  );
+
+  useEffect(() => {
+    setSelectedTableIds((prev) => {
+      const visibleIds = new Set(filteredRecords.map((record) => record.table_id));
+      const next = new Set(
+        Array.from(prev).filter((tableId) => visibleIds.has(tableId)),
+      );
+
+      if (
+        next.size === prev.size &&
+        Array.from(next).every((tableId) => prev.has(tableId))
+      ) {
+        return prev;
+      }
+
+      return next;
+    });
+    setSelectAll(
+      filteredRecords.length > 0 &&
+        filteredRecords.every((record) => selectedTableIds.has(record.table_id)),
+    );
+  }, [filteredRecords, selectedTableIds]);
 
   const toggleSelectAll = () => {
     if (selectAll) {
@@ -165,17 +227,28 @@ export default function QRCodeGeneration() {
 
   const downloadQr = async (tableId: number, label?: string) => {
     try {
-      const response = await fetch(getTableQrImageUrl(tableId));
-      if (!response.ok) throw new Error("Failed to fetch QR image.");
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
-      anchor.href = objectUrl;
+      const dataUrl =
+        generatedQrs[tableId]?.qr_code_data_url ||
+        records.find((record) => record.table_id === tableId)?.qr_code_data_url;
+      const objectUrl = dataUrl
+        ? null
+        : URL.createObjectURL(
+            await (async () => {
+              const response = await fetch(getTableQrImageUrl(tableId));
+              if (!response.ok) throw new Error("Failed to fetch QR image.");
+              return response.blob();
+            })(),
+          );
+
+      anchor.href = dataUrl || objectUrl || "";
       anchor.download = `${label ?? `table-${tableId}`}-qr.png`;
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
-      URL.revokeObjectURL(objectUrl);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
     } catch (error) {
       toast.error("QR download failed", {
         description: parseApiError(error).message,
@@ -192,9 +265,36 @@ export default function QRCodeGeneration() {
     }
     setGenerating(true);
     try {
-      const firstId = Array.from(selectedTableIds)[0];
+      const ids = Array.from(selectedTableIds);
+      const generated = await Promise.all(ids.map((tableId) => generateTableQr(tableId)));
+      setGeneratedQrs((prev) => ({
+        ...prev,
+        ...Object.fromEntries(
+          generated.map(({ qr }) => [
+            qr.table_id,
+            {
+              ...records.find((record) => record.table_id === qr.table_id),
+              ...qr,
+            },
+          ]),
+        ),
+      }));
+      setRecords((prev) =>
+        prev.map((record) => {
+          const generatedRecord = generated.find(
+            ({ qr }) => qr.table_id === record.table_id,
+          )?.qr;
+
+          return generatedRecord ? { ...record, ...generatedRecord } : record;
+        }),
+      );
+      const firstId = ids[0];
       setPreviewTableId(firstId);
-      toast.success(`Previewing QR for ${selectedTableIds.size} table(s)`);
+      toast.success(`Generated QR for ${selectedTableIds.size} table(s)`);
+    } catch (error) {
+      toast.error("QR generation failed", {
+        description: parseApiError(error).message,
+      });
     } finally {
       setGenerating(false);
     }
@@ -302,7 +402,7 @@ export default function QRCodeGeneration() {
                   textAlign: "left",
                 }}
               >
-                <span>{selectedArea}</span>
+                <span>{selectedAreaLabel}</span>
                 <ChevronDownIcon />
               </button>
               {areaDropdownOpen && (
@@ -317,23 +417,26 @@ export default function QRCodeGeneration() {
                 >
                   {AREA_OPTIONS.map((area) => (
                     <button
-                      key={area}
+                      key={area.value}
                       onClick={() => {
-                        setSelectedArea(area);
+                        setSelectedArea(area.value);
                         setAreaDropdownOpen(false);
                       }}
                       className="w-full text-left px-3 py-2"
                       style={{
                         fontSize: 14,
-                        color: area === selectedArea ? "#c85a00" : "#1a0a00",
+                        color:
+                          area.value === selectedArea ? "#c85a00" : "#1a0a00",
                         backgroundColor:
-                          area === selectedArea ? "#fff8f4" : "transparent",
+                          area.value === selectedArea
+                            ? "#fff8f4"
+                            : "transparent",
                         border: "none",
                         cursor: "pointer",
-                        fontWeight: area === selectedArea ? 600 : 400,
+                        fontWeight: area.value === selectedArea ? 600 : 400,
                       }}
                     >
-                      {area}
+                      {area.label}
                     </button>
                   ))}
                 </div>
@@ -419,7 +522,7 @@ export default function QRCodeGeneration() {
             >
               {filteredRecords.map((record) => {
                 const isSelected = selectedTableIds.has(record.table_id);
-                const label = getTableLabel(record); // ← "T-02" from API
+                const label = getTableLabel(record);
                 return (
                   <button
                     key={record.table_id}
@@ -513,7 +616,12 @@ export default function QRCodeGeneration() {
                 </div>
               </div>
               <img
-                src={getTableQrImageUrl(previewTableId)}
+                src={
+                  generatedQrs[previewTableId]?.qr_code_data_url ||
+                  records.find((r) => r.table_id === previewTableId)
+                    ?.qr_code_data_url ||
+                  getTableQrImageUrl(previewTableId)
+                }
                 alt={`QR for ${getTableLabel(records.find((r) => r.table_id === previewTableId) ?? { table_id: previewTableId, table_number: previewTableId, table_name: undefined, qr_code_url: null })}`}
                 style={{
                   display: "block",
