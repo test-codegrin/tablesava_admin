@@ -1,7 +1,5 @@
-import axios from "axios";
-import api, { ApiRequestError, parseApiError, requestApi } from "@/api/apiClient";
+import { requestApi } from "@/api/apiClient";
 import type {
-  GenerateReceiptResponse,
   OrderDetail,
   OrderItemQuantity,
   OrderLineItem,
@@ -252,98 +250,18 @@ export const updateOrderStatus = async (orderId: number, current: OrderStatus, n
     url: `/orders/items/${orderId}/status`,
     data: { status: next },
   });
+  const orderEntity = extractOrderEntity(response.data ?? response.raw, orderId);
+  const hasUpdatedOrderData =
+    isRecord(orderEntity) &&
+    (typeof orderEntity.order_id !== "undefined" ||
+      typeof orderEntity.status !== "undefined" ||
+      Boolean(getReceiptUrlFromResponse(orderEntity)));
+  const updatedOrder = hasUpdatedOrderData
+    ? { ...mapOrderSummary(orderEntity), order_id: orderId }
+    : null;
 
   return {
     message: response.message || "Order status updated successfully.",
+    order: updatedOrder,
   };
-};
-
-const parseJsonBlob = async (blob: Blob) => {
-  const text = await blob.text();
-  if (!text.trim()) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(text) as unknown;
-  } catch {
-    return text;
-  }
-};
-
-const isPdfBlob = (blob: Blob, contentType?: string) =>
-  contentType?.toLowerCase().includes("application/pdf") ||
-  blob.type.toLowerCase().includes("application/pdf");
-
-const normalizeReceiptPayload = async (
-  payload: unknown,
-  contentType?: string,
-): Promise<GenerateReceiptResponse> => {
-  if (payload instanceof Blob) {
-    if (isPdfBlob(payload, contentType)) {
-      return { receiptUrl: URL.createObjectURL(payload) };
-    }
-
-    const parsed = await parseJsonBlob(payload);
-    const receiptUrl = getReceiptUrlFromResponse(parsed);
-    if (receiptUrl) {
-      return { receiptUrl };
-    }
-  } else {
-    const receiptUrl = getReceiptUrlFromResponse(payload);
-    if (receiptUrl) {
-      return { receiptUrl };
-    }
-  }
-
-  throw new Error("Receipt was generated, but the response did not include a receipt URL.");
-};
-
-const parseBlobError = async (error: unknown) => {
-  if (!axios.isAxiosError(error) || !(error.response?.data instanceof Blob)) {
-    return parseApiError(error);
-  }
-
-  const parsed = await parseJsonBlob(error.response.data);
-  const status = error.response.status ?? null;
-
-  if (isRecord(parsed)) {
-    const message =
-      toNullableString(parsed.message) ??
-      (isRecord(parsed.data) ? toNullableString(parsed.data.message) : null);
-
-    if (message) {
-      return {
-        status,
-        message,
-        details: parsed.data,
-      };
-    }
-  }
-
-  return parseApiError(error);
-};
-
-export const generateBookingReceipt = async (
-  bookingId: string | number,
-): Promise<GenerateReceiptResponse> => {
-  try {
-    const response = await api.post<Blob | unknown>(
-      `/api/admin/bookings/${bookingId}/receipt`,
-      undefined,
-      {
-        responseType: "blob",
-        headers: {
-          Accept: "application/json, application/pdf",
-        },
-      },
-    );
-
-    return await normalizeReceiptPayload(
-      response.data,
-      response.headers["content-type"],
-    );
-  } catch (error) {
-    throw new ApiRequestError(await parseBlobError(error));
-  }
 };

@@ -171,10 +171,6 @@ export interface GenerateBookingReceiptRequest {
   bookingId: string | number;
 }
 
-export interface GenerateReceiptResponse {
-  receiptUrl: string;
-}
-
 export interface DashboardOverviewQuery {
   latest_limit?: number;
   weekly_days?: number;

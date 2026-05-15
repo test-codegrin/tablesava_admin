@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import {
   canTransitionOrderStatus,
-  generateBookingReceipt,
   getOrderById,
   getOrders,
   ORDER_STATUS_LABELS,
@@ -30,7 +29,7 @@ import {
 import { getTables } from "@/services/tableService";
 import type { OrderDetail, OrderStatus, OrderSummary } from "@/types/admin";
 import Loader from "@/pages/Loader";
-import { RiFileTextLine, RiSearchLine } from "@remixicon/react";
+import { RiSearchLine } from "@remixicon/react";
 
 const PAGE_SIZE = 10;
 
@@ -65,9 +64,6 @@ export default function LiveOrders() {
   const [page, setPage] = useState(1);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
-  const [generatingReceiptOrderId, setGeneratingReceiptOrderId] = useState<
-    number | null
-  >(null);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -154,6 +150,9 @@ export default function LiveOrders() {
         selectedOrder.status,
         nextStatus,
       );
+      if (response.order?.receipt_url) {
+        mergeReceiptUrl(response.order.order_id, response.order.receipt_url);
+      }
       toast.success("Order status updated", { description: response.message });
       window.dispatchEvent(new Event("orders:status-updated"));
       window.dispatchEvent(new Event("dashboard:refresh"));
@@ -174,17 +173,6 @@ export default function LiveOrders() {
     }
   };
 
-  const canGenerateReceipt = (order: OrderSummary | OrderDetail) =>
-    order.status === 2 && order.total_amount > 0;
-
-  const openReceiptUrl = (receiptUrl: string) => {
-    window.open(receiptUrl, "_blank", "noopener,noreferrer");
-
-    if (receiptUrl.startsWith("blob:")) {
-      window.setTimeout(() => URL.revokeObjectURL(receiptUrl), 60_000);
-    }
-  };
-
   const mergeReceiptUrl = (orderId: number, receiptUrl: string) => {
     setOrders((current) =>
       current.map((order) =>
@@ -197,41 +185,19 @@ export default function LiveOrders() {
     );
   };
 
-  const handleReceiptAction = async (order: OrderSummary | OrderDetail) => {
-    if (order.receipt_url) {
-      openReceiptUrl(order.receipt_url);
-      return;
-    }
-
-    if (!canGenerateReceipt(order)) {
-      toast.error("Receipt unavailable", {
-        description: "Receipts can be generated only for completed paid orders.",
-      });
-      return;
-    }
-
-    setGeneratingReceiptOrderId(order.order_id);
-    try {
-      const response = await generateBookingReceipt(order.order_id);
-      mergeReceiptUrl(order.order_id, response.receiptUrl);
-      openReceiptUrl(response.receiptUrl);
-      toast.success("Receipt generated", {
-        description: "The receipt is ready to view.",
-      });
-      window.dispatchEvent(new Event("dashboard:refresh"));
-
-      await loadOrders();
-      if (selectedOrderId === order.order_id) {
-        await loadOrderDetail(order.order_id);
-      }
-    } catch (error) {
-      toast.error("Receipt generation failed", {
-        description: parseApiError(error).message,
-      });
-    } finally {
-      setGeneratingReceiptOrderId(null);
-    }
-  };
+  const renderReceiptLink = (order: OrderSummary | OrderDetail) =>
+    order.receipt_url ? (
+      <a
+        href={order.receipt_url}
+        target="_blank"
+        rel="noreferrer"
+        className="font-medium text-[#c56524] underline-offset-4 hover:underline"
+      >
+        View Receipt
+      </a>
+    ) : (
+      <span className="text-zinc-500">No receipt yet</span>
+    );
 
   const canMoveToAccepted = Boolean(
     selectedOrder && canTransitionOrderStatus(selectedOrder.status, 1),
@@ -239,13 +205,6 @@ export default function LiveOrders() {
   const canMoveToCompleted = Boolean(
     selectedOrder && canTransitionOrderStatus(selectedOrder.status, 2),
   );
-  const selectedOrderReceiptDisabled = Boolean(
-    !selectedOrder ||
-      updatingStatus ||
-      generatingReceiptOrderId === selectedOrder.order_id ||
-      (!selectedOrder.receipt_url && !canGenerateReceipt(selectedOrder)),
-  );
-
   return (
     <div className="space-y-4 p-6 bg-[#fff8f6]">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -329,6 +288,7 @@ export default function LiveOrders() {
               <TableHead className="text-[#7c2d12]">Total Qty</TableHead>
               <TableHead className="text-[#7c2d12]">Total Amount</TableHead>
               <TableHead className="text-[#7c2d12]">Status</TableHead>
+              <TableHead className="text-[#7c2d12]">Receipt</TableHead>
               <TableHead className="text-[#7c2d12]">Created</TableHead>
               <TableHead className="text-right text-[#7c2d12]">
                 Action
@@ -338,7 +298,7 @@ export default function LiveOrders() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={9}>
                   <Loader
                     message="Loading orders..."
                     className="min-h-[80px]"
@@ -347,7 +307,7 @@ export default function LiveOrders() {
               </TableRow>
             ) : paginatedOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-zinc-500">
+                <TableCell colSpan={9} className="text-center text-zinc-500">
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -371,6 +331,7 @@ export default function LiveOrders() {
                       {ORDER_STATUS_LABELS[order.status]}
                     </Badge>
                   </TableCell>
+                  <TableCell>{renderReceiptLink(order)}</TableCell>
                   <TableCell>
                     {order.created_at
                       ? new Date(order.created_at).toLocaleString()
@@ -387,25 +348,6 @@ export default function LiveOrders() {
                         }}
                       >
                         Preview
-                      </Button>
-                      <Button
-                        className="bg-white border border-[#e7cdb8] hover:bg-[#f8efe7]"
-                        type="button"
-                        size="sm"
-                        disabled={
-                          generatingReceiptOrderId === order.order_id ||
-                          (!order.receipt_url && !canGenerateReceipt(order))
-                        }
-                        onClick={() => {
-                          void handleReceiptAction(order);
-                        }}
-                      >
-                        <RiFileTextLine className="size-4" />
-                        {generatingReceiptOrderId === order.order_id
-                          ? "Generating..."
-                          : order.receipt_url
-                            ? "View Receipt"
-                            : "Generate Receipt"}
                       </Button>
                     </div>
                   </TableCell>
@@ -484,6 +426,10 @@ export default function LiveOrders() {
                   </p>
                 </div>
                 <div>
+                  <p className="text-xs text-zinc-500">Receipt</p>
+                  <p className="font-medium">{renderReceiptLink(selectedOrder)}</p>
+                </div>
+                <div>
                   <p className="text-xs text-zinc-500">Items</p>
                   <p className="font-medium">
                     {selectedOrder.item_count ?? selectedOrder.items.length}
@@ -546,27 +492,9 @@ export default function LiveOrders() {
               type="button"
               variant="outline"
               onClick={() => setSelectedOrderId(null)}
-              disabled={updatingStatus || generatingReceiptOrderId !== null}
+              disabled={updatingStatus}
             >
               Close
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                if (selectedOrder) {
-                  void handleReceiptAction(selectedOrder);
-                }
-              }}
-              disabled={selectedOrderReceiptDisabled}
-            >
-              <RiFileTextLine className="size-4" />
-              {selectedOrder &&
-              generatingReceiptOrderId === selectedOrder.order_id
-                ? "Generating..."
-                : selectedOrder?.receipt_url
-                  ? "View Receipt"
-                  : "Generate Receipt"}
             </Button>
             <Button
               type="button"
@@ -575,8 +503,7 @@ export default function LiveOrders() {
               }}
               disabled={
                 !canMoveToAccepted ||
-                updatingStatus ||
-                generatingReceiptOrderId !== null
+                updatingStatus
               }
             >
               {updatingStatus && canMoveToAccepted
@@ -590,8 +517,7 @@ export default function LiveOrders() {
               }}
               disabled={
                 !canMoveToCompleted ||
-                updatingStatus ||
-                generatingReceiptOrderId !== null
+                updatingStatus
               }
             >
               {updatingStatus && canMoveToCompleted
